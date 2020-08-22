@@ -78,7 +78,11 @@
 
 \begin{document}
 \title{This is a Very Important Title!}   % self-explanatory
-\author{Person McSomething}               % self-explanatory
+\author{Adam Jakobsen
+	\texttt{\href{mailto:adamjak@student.matnat.uio.no}{adamjak@student.matnat.uio.no}}
+	\and\\
+	Christophe Blomsen
+	\texttt{\href{mailto:chriskbl@student.matnat.uio.no}{chriskbl@student.matnat.uio.no}}}               % self-explanatory
 \date{\today}                             % self-explanatory
 \noaffiliation                            % ignore this
 \begin{abstract}                          % marks the beginning of the abstract
@@ -98,6 +102,36 @@ If you are familiar with \LaTeX\ and you want to learn more about the REVTeX4-1 
 \section{Theory}   % (optional)
 \section{Method}
 \section{Results}
+	% All of this might be moved around later, just adding the equations atm
+	We will now show that \[
+	FWHM = 2 \sqrt{2 \ln 2 } \sigma
+	\] 
+	The areas \[
+		(FWHM) \cdot (P(x_1)) = \frac{P(\mu)}{2} \cdot (x_2 -x_1)
+	\] 
+	And since
+	\begin{eqnarray} %to get equations underneath each other \nonumber to loose (1)
+		&FWHM = x_2 - x_1 \wedge FWHM = 2(\mu - x_1)\nonumber\\
+		     &\Downarrow \nonumber\\
+		     &P(x_1) = \frac{P(\mu)}{2} \nonumber\\
+		     &e^{\frac{- \left( x_1 - \mu \right)^2 }{2 \sigma^2} = \frac{1}{2} \nonumber \\
+		     &- \frac{\left (x_1 - \mu\right)^2}{2 \sigma^2} = - \ln 2 \nonumber
+	\end{eqnarray} 
+	But we know that
+	\begin{eqnarray}
+		-FWHM = 2 \left( x_1 - \mu \right) \nonumber
+	\end{eqnarray}
+	This then means
+	\begin{eqnarray}
+		\frac{\left( \frac{1}{2} \left( -FWHM \right) ^2 \right)}{2 \sigma^2}   = \ln 2 \nonumber \\
+		FWHM = 2 \sqrt{2 \ln 2} \sigma
+	\end{eqnarray}
+	\\
+	We are now going to derive the average energy of a molecule in an ideal gas. We will have use of knowing this integral. \[
+		\int\limits_0^\infty x^{\frac{3}{2}} \e^{-x} \dd{x}= \frac{3 \sqrt{\pi}}{4}
+	\] 
+
+	
 \section{Discussion}
 \section{Conclusion}
 % acknowledgements (optional)

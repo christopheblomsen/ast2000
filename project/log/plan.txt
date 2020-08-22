@@ -1,0 +1,5 @@
+A	1. integration algorithm (midpoint, trapezoidal, simpson, runge-kutta, monte carlo)
+
+	2. Sannsynlighet for at x ligger mellom a og b
+
+	3. 
