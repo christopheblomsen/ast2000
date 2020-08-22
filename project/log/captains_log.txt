@@ -1,3 +1,5 @@
 Always put your log for what you've done in here
 
 Started writing the integral using trapezoidal technique in part1
+
+Made a class for the integral using the midtpunktsmetoden.
