@@ -1,22 +1,34 @@
 import numpy as np
+import matplotlib.pyplot as plt
 
 
-def trapezoidal(f, a, b, n):
-    h = (b-a)/(n)
-    s = 0.5*(f(mu, sigma, a) + f(mu, sigma, b))
-    for i in range(1, n, 1):
-        s = s + f(a + i*h)
-    return h*s
+def integral(g, a, x, N=20):
+    index_set = range(N+1)
+    x = np.linspace(a, x, N+1)
+    g_ = np.zeros_like(x)
+    f = np.zeros_like(x)
+    g_[0] = g(x[0])
+    f[0] = 0
+
+    for n in index_set[1:]:
+        g_[n] = g(x[n])
+        f[n] = f[n-1] + 0.5*(x[n] - x[n-1])*(g_[n-1] + g_[n])
+    return x, f
 
 
-def f(mu, sigma, x):
-    return 1/(np.sqrt(2*np.pi)*sigma) * np.exp(-0.5*((x-mu)/sigma)**2)
+def gauss():
+    def g(t):
+        return 1.0/np.sqrt(2*np.pi)*np.exp(-0.5*t**2)
+    x, f = integral(g, a=-3, x=3, N=200)
+    integrand = g(x)
+    plt.plot(x, f)
+    plt.show()
 
+gauss()
 
-mu, sigma, x = 1, 1, 1
+mu, sigma, x0 = 1, 1, 0
 
-a = - sigma
-b = sigma
+u, t = runge_kutta2(f, x0, 20, 5)
 
-P = trapezoidal(f(mu, sigma, x), a, b, 10)
-print(P)
+plt.plot(t, u)
+plt.show()
