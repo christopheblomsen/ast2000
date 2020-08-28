@@ -1,5 +1,6 @@
 import numpy as np
 import unittest
+import ast2000tools.constants as conts
 
 
 class integral(unittest.TestCase):
@@ -8,10 +9,13 @@ class integral(unittest.TestCase):
         self.mu = mu
         self.a = a
         self.b = b
+        self.k = conts.k_B
+        self.T = 3000
+        self.m = conts.m_H2
 
     def f(self, x):
-        self.x = x
-        ans = 1/(np.sqrt(2*np.pi)*self.sigma)*np.exp(-1/2*((x - self.mu)/self.sigma)**2)
+        self.v = x
+        ans = (self.m/(np.sqrt(2*np.pi*self.k*self.T)))**(1/2) * np.exp(-1/2*(self.m*self.v**2)/(self.k*self.T))
 
         return ans
 
@@ -36,7 +40,7 @@ class test(unittest.TestCase):
 
         N = 1000
 
-        p1 = integral(1, 0, -1, 1)
+        p1 = integral(1, 0, -(np.sqrt(self.k*self.T/self.m)), (np.sqrt(self.k*self.T/self.m)))
         computed1 = p1.P(N)
         msg1 = f'expected {expected1} but got {computed1}'
 
