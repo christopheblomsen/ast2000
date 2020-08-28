@@ -1,12 +1,12 @@
 # Fdb version 3
-["bibtex template"] 1598541794 "template.aux" "template.bbl" "template" 1598543483
+["bibtex template"] 1598553520 "template.aux" "template.bbl" "template" 1598553520
   "/usr/share/texmf-dist/bibtex/bst/revtex/apsrev4-1.bst" 1591525267 71518 fec93f06df0c073f83d2330456bd19c2 ""
-  "template.aux" 1598543411 2889 9516b9a856e6b042ea852c0e940a13f4 "pdflatex"
-  "templateNotes.bib" 1598543411 708 ed1f3def9530d24c6dbef5f86b1fef12 "pdflatex"
+  "template.aux" 1598553492 2783 4d25c4c91be803c1a7f3ecbe0a06a8a1 "pdflatex"
+  "templateNotes.bib" 1598553492 708 ed1f3def9530d24c6dbef5f86b1fef12 "pdflatex"
   (generated)
   "template.bbl"
   "template.blg"
-["pdflatex"] 1598543483 "template.tex" "template.pdf" "template" 1598543483
+["pdflatex"] 1598553520 "template.tex" "template.pdf" "template" 1598553520
   "/usr/share/texmf-dist/fonts/map/fontname/texfonts.map" 1591545468 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "/usr/share/texmf-dist/fonts/tfm/public/amsfonts/cmextra/cmex7.tfm" 1591545468 1004 54797486969f23fa377b128694d548df ""
   "/usr/share/texmf-dist/fonts/tfm/public/amsfonts/cmextra/cmex9.tfm" 1591545468 996 a18840b13b499c08ac2de96a99eda4bc ""
@@ -42,7 +42,6 @@
   "/usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb" 1591545468 32762 224316ccc9ad3ca0423a14971cfa7fc1 ""
   "/usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr9.pfb" 1591545468 33993 9b89b85fd2d9df0482bd47194d1d3bf3 ""
   "/usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb" 1591545468 32569 5e5ddc8df908dea60932f3c484a54c0d ""
-  "/usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy5.pfb" 1591545468 32915 7bf7720c61a5b3a7ff25b0964421c9b6 ""
   "/usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb" 1591545468 32716 08e384dc442464e7285e891af9f45947 ""
   "/usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt10.pfb" 1591545468 31099 c85edf1dd5b9e826d67c9c7293b6786c ""
   "/usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt8.pfb" 1591545468 24287 6b803fa9eb1ddff9112e00519b09dd9e ""
@@ -193,15 +192,15 @@
   "/usr/share/texmf-dist/tex/latex/url/url.sty" 1591545468 12796 8edb7d69a20b857904dd0ea757c14ec9 ""
   "/usr/share/texmf-dist/tex/latex/xcolor/xcolor.sty" 1591545468 55589 34128738f682d033422ca125f82e5d62 ""
   "/usr/share/texmf-dist/web2c/texmf.cnf" 1591545468 33301 a3134070eacafb10b1f371612ce2650d ""
-  "/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map" 1595709734 4855604 a2b69e422d881628e3d9a5db2035053f ""
-  "/var/lib/texmf/web2c/pdftex/pdflatex.fmt" 1595709717 2514045 cbd191538ef1e89e264189bdf9e02b7d ""
-  "template.aux" 1598543411 2889 9516b9a856e6b042ea852c0e940a13f4 "pdflatex"
-  "template.bbl" 1598541795 2651 2ce5ebaf718f9d8bb83799fbc81981c0 "bibtex template"
-  "template.out" 1598543411 769 c9b5bf81ccdd96ea6265ad11e74ce6ed "pdflatex"
-  "template.tex" 1598543482 11600 299948b4eaafd9c1c0c1a7e29582f7c8 ""
+  "/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map" 1598074823 4855604 a2b69e422d881628e3d9a5db2035053f ""
+  "/var/lib/texmf/web2c/pdftex/pdflatex.fmt" 1598074814 2514047 4a3f643126bdeb26cf78251e78bf03b2 ""
+  "template.aux" 1598553492 2783 4d25c4c91be803c1a7f3ecbe0a06a8a1 "pdflatex"
+  "template.bbl" 1598553520 2651 2ce5ebaf718f9d8bb83799fbc81981c0 "bibtex template"
+  "template.out" 1598553492 715 43ca34c3366270d6015a502ac2d43327 "pdflatex"
+  "template.tex" 1598553519 10539 d0840a0ebb64016b4a13b594f7e98dc7 ""
   (generated)
-  "template.aux"
-  "template.pdf"
-  "templateNotes.bib"
   "template.log"
   "template.out"
+  "templateNotes.bib"
+  "template.aux"
+  "template.pdf"

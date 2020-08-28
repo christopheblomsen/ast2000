@@ -99,39 +99,10 @@ If you are familiar with \LaTeX\ and you want to learn more about the REVTeX4-1 
 
 % the fundamental components of scientific reports:
 \section{Introduction}
-\section{Theory}   % (optional)
+	
+%\section{Theory}   % (optional)
 \section{Method}
 \section{Results}
-	% All of this might be moved around later, just adding the equations atm
-	We will now show that \[
-	FWHM = 2 \sqrt{2 \ln 2 } \sigma
-	\] 
-	The areas \[
-		(FWHM) \cdot (P(x_1)) = \frac{P(\mu)}{2} \cdot (x_2 -x_1)
-	\] 
-	And since
-	\begin{eqnarray} %to get equations underneath each other \nonumber to loose (1)
-		&FWHM = x_2 - x_1 \wedge FWHM = 2(\mu - x_1)\nonumber\\
-		     &\Downarrow \nonumber\\
-		     &P(x_1) = \frac{P(\mu)}{2} \nonumber\\
-		     &e^{\frac{- \left( x_1 - \mu \right)^2 }{2 \sigma^2} = \frac{1}{2} \nonumber \\
-		     &- \frac{\left (x_1 - \mu\right)^2}{2 \sigma^2} = - \ln 2 \nonumber
-	\end{eqnarray} 
-	But we know that
-	\begin{eqnarray}
-		-FWHM = 2 \left( x_1 - \mu \right) \nonumber
-	\end{eqnarray}
-	This then means
-	\begin{eqnarray}
-		\frac{\left( \frac{1}{2} \left( -FWHM \right) ^2 \right)}{2 \sigma^2}   = \ln 2 \nonumber \\
-		FWHM = 2 \sqrt{2 \ln 2} \sigma
-	\end{eqnarray}
-	\\
-	We are now going to derive the average energy of a molecule in an ideal gas. We will have use of knowing this integral. \[
-		\int\limits_0^\infty x^{\frac{3}{2}} \e^{-x} \dd{x}= \frac{3 \sqrt{\pi}}{4}
-	\] 
-
-	
 \section{Discussion}
 \section{Conclusion}
 % acknowledgements (optional)
@@ -170,8 +141,9 @@ I would like thank myself for writing this beautiful document.
 	\end{eqnarray}
 	Next
 	\begin{eqnarray}
-		&P = \frac{1}{3} 
+		&P = \frac{1}{3}\int \limits_0^{\infty} pvn(p) \dd{p} \nonumber \\
 	\end{eqnarray}
+	
 \section{This is another appendix}\label{appendix}
 Tada.
 %% all \section commands following \appendix are automatically taken as appendices
