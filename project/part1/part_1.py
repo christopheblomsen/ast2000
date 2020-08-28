@@ -16,9 +16,28 @@ in any way you want!
 import ast2000tools.constants as const
 import ast2000tools.utils as utils
 from ast2000tools.space_mission import SpaceMission
+import numpy as np
+import random
 
+k = const.k_B
+m = const.m_H2
 
-L = 10**(-6)
+L = 1e-05   # m
+T = 3e3     # K
+N = 100     # Number of particles
+
+random.seed(95)
+
+mean = 0    # mean
+stdDev = np.sqrt(k*T/m)  # Standard deviation
+
+particle_positions = np.zeros((N, 3), float)   # Placeholder array for position
+particle_velocities = np.zeros((N, 3), float)  # Placeholder array of velocity
+
+for i in range(N):
+    particle_positions[i, :] = random.uniform(0, L)
+    particle_velocities[i, :] = random.gauss(mean, stdDev)
+
 
 def simulate_engine_performance(number_of_particles_in_box,
                                 box_side_length,
@@ -155,7 +174,7 @@ if __name__ == '__main__':
     utils.check_for_newer_version()
 
     # Construct SpaceMission instance for my mission
-    seed = utils.get_seed('my_username')
+    seed = utils.get_seed('chriskbl')
     mission = SpaceMission(seed)
 
     # Extract associated SolarSystem object
