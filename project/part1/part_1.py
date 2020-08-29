@@ -18,25 +18,20 @@ import ast2000tools.utils as utils
 from ast2000tools.space_mission import SpaceMission
 import numpy as np
 import random
+from distrubtion import integration
 
-k = const.k_B
-m = const.m_H2
+k = const.k_B                       # maxwell-boltzmann contstan
+m = const.m_H2                      # mass of H2
 
-L = 1e-05   # m
-T = 3e3     # K
-N = 100     # Number of particles
+box_side_length = 1e-05             # m
+temperature = 3e3                   # K
+number_of_particles_in_box = 100
+timestep = 1000
 
 random.seed(95)
 
-mean = 0    # mean
-stdDev = np.sqrt(k*T/m)  # Standard deviation
-
-particle_positions = np.zeros((N, 3), float)   # Placeholder array for position
-particle_velocities = np.zeros((N, 3), float)  # Placeholder array of velocity
-
-for i in range(N):
-    particle_positions[i, :] = random.uniform(0, L)
-    particle_velocities[i, :] = random.gauss(mean, stdDev)
+mean = 0
+standard_deviation = np.sqrt(k*temperature/m)
 
 
 def simulate_engine_performance(number_of_particles_in_box,
@@ -49,14 +44,33 @@ def simulate_engine_performance(number_of_particles_in_box,
     """
 
     # Insert awesome code here...
+    particle_positions = np.zeros((number_of_particles_in_box, 3), float)
+    particle_velocities = np.zeros((number_of_particles_in_box, 3), float)
+    time = np.linspace(0, 10e-09, timestep)
+    dt = 10e-12
 
-    # You will probably also need these constants:
-    # const.k_B
-    # const.m_H2
+    for i in range(number_of_particles_in_box):
+        particle_positions[i, 0, :] = random.uniform(0, box_side_length)
+        particle_velocities[i, 0, :] = random.gauss(mean, standard_deviation)
+
+    for i in range(number_of_particles_in_box-1):
+        particle_velocities[i + 1] = np.trapz(particle_positions[i])
+        particle_positions[i + 1] = particle_velocities[i + 1]*dt
+
+    return particle_positions, particle_velocities
+
+par_pos, par_vel = simulate_engine_performance(number_of_particles_in_box,
+                                               box_side_length,
+                                               temperature,
+                                               1)
+print(par_pos)
+"""
+    thrust_per_box = 1
+    mass_loss_rate_per_box = 1
 
     return thrust_per_box, \
            mass_loss_rate_per_box
-
+"""
 
 def compute_fuel_mass_needed_for_boost(mission,
                                        rocket_thrust,
@@ -72,7 +86,7 @@ def compute_fuel_mass_needed_for_boost(mission,
 
     # You will probably also need this quantity:
     # mission.spacecraft_mass
-
+    fuel_mass_used = 1  # placholder for testing
     return fuel_mass_used
 
 
@@ -166,7 +180,7 @@ def run_engine_and_launch_simulation(mission,
            fuel_mass_after_launch,     \
            launch_duration
 
-
+"""
 # Prevent the following code from executing when calling `import part_1`
 if __name__ == '__main__':
 
@@ -218,3 +232,4 @@ if __name__ == '__main__':
 
     # Verify simulated launch results
     mission.verify_launch_result(rocket_position_after_launch)
+"""
