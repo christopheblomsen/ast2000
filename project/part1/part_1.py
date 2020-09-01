@@ -18,7 +18,8 @@ import ast2000tools.utils as utils
 from ast2000tools.space_mission import SpaceMission
 import numpy as np
 import random
-from distrubtion import integration
+from numba import njit
+# from distrubtion import integration
 
 k = const.k_B                       # maxwell-boltzmann contstan
 m = const.m_H2                      # mass of H2
@@ -33,7 +34,7 @@ random.seed(95)
 mean = 0
 standard_deviation = np.sqrt(k*temperature/m)
 
-
+@njit
 def simulate_engine_performance(number_of_particles_in_box,
                                 box_side_length,
                                 temperature,
@@ -44,18 +45,27 @@ def simulate_engine_performance(number_of_particles_in_box,
     """
 
     # Insert awesome code here...
-    particle_positions = np.zeros((number_of_particles_in_box, 3), float)
-    particle_velocities = np.zeros((number_of_particles_in_box, 3), float)
+    particle_positions = np.zeros((timestep, number_of_particles_in_box, 3), float)
+    particle_velocities = np.zeros((timestep, number_of_particles_in_box, 3), float)
     time = np.linspace(0, 10e-09, timestep)
     dt = 10e-12
 
     for i in range(number_of_particles_in_box):
-        particle_positions[i, 0, :] = random.uniform(0, box_side_length)
-        particle_velocities[i, 0, :] = random.gauss(mean, standard_deviation)
+        particle_positions[0, i, :] = random.uniform(0, box_side_length)
+        particle_velocities[0, i, :] = random.gauss(mean, standard_deviation)
 
-    for i in range(number_of_particles_in_box-1):
-        particle_velocities[i + 1] = np.trapz(particle_positions[i])
-        particle_positions[i + 1] = particle_velocities[i + 1]*dt
+    for i in range(time):
+        for j in range(number_of_particles_in_box):
+            for k in range(3):
+                if particle_positions[i,j,0] >= box_side_length or particle_positions[i,j,0] <=0:
+                    pass
+                elif particle_positions[i,j,1] >= box_side_length or particle_positions[i,j,1] <= 0:
+                    pass
+                elif particle_positions[i,j,2] >= box_side_length or particle_positions[i,j,2]<= 0:
+
+                else:
+                    pass
+
 
     return particle_positions, particle_velocities
 
@@ -63,7 +73,7 @@ par_pos, par_vel = simulate_engine_performance(number_of_particles_in_box,
                                                box_side_length,
                                                temperature,
                                                1)
-print(par_pos)
+print(np.shape(par_vel))
 """
     thrust_per_box = 1
     mass_loss_rate_per_box = 1
