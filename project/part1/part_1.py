@@ -60,17 +60,17 @@ def simulate_engine_performance(number_of_particles_in_box,
             for k in range(3):
                 if particle_positions[i, j, 0] >= box_side_length or particle_positions[i, j, 0] <= 0:
                     particle_velocities[i, j, :] = particle_velocities[0, k, :]
-                    particle_velocities[i, j, 0] = particle_velocities[0, 0, 0]
+                    particle_velocities[i, j, 0] = -particle_velocities[0, 0, 0]
                     particle_positions[i, j, :] = particle_velocities[i, k, :]*dt
 
                 elif particle_positions[i, j, 1] >= box_side_length or particle_positions[i, j, 1] <= 0:
                     particle_velocities[i, j, :] = particle_velocities[0, k, :]
-                    particle_velocities[i, j, 1] = particle_velocities[0, 0, 0]
+                    particle_velocities[i, j, 1] = -particle_velocities[0, 0, 0]
                     particle_positions[i, j, :] = particle_velocities[i, k, :]*dt
 
                 elif particle_positions[i, j, 2] >= box_side_length or particle_positions[i, j, 2] <= 0:
                     particle_velocities[i, j, :] = particle_velocities[0, k, :]
-                    particle_velocities[i, j, 2] = particle_velocities[0, 0, 0]
+                    particle_velocities[i, j, 2] = -particle_velocities[0, 0, 0]
                     particle_positions[i, j, :] = particle_velocities[i, k, :]*dt
 
                 else:
