@@ -28,6 +28,7 @@ box_side_length = 1e-05             # m
 temperature = 3e3                   # K
 number_of_particles_in_box = 100
 timestep = 1000
+box_hole_area = 0.25*box_side_length**2
 
 random.seed(95)
 
@@ -50,6 +51,7 @@ def simulate_engine_performance(number_of_particles_in_box,
     particle_velocities = np.zeros((timestep, number_of_particles_in_box, 3), float)
     time = np.linspace(0, 10e-09, timestep)
     dt = 10e-12
+    box_hole = np.array([box_hole_area, 0, 0])
 
     for i in range(number_of_particles_in_box):
         particle_positions[0, i, :] = random.uniform(0, box_side_length)
@@ -59,30 +61,30 @@ def simulate_engine_performance(number_of_particles_in_box,
         for j in range(number_of_particles_in_box):
             for k in range(3):
                 if particle_positions[i, j, 0] >= box_side_length or particle_positions[i, j, 0] <= 0:
-                    particle_velocities[i, j, :] = particle_velocities[0, k, :]
-                    particle_velocities[i, j, 0] = -particle_velocities[0, 0, 0]
-                    particle_positions[i, j, :] = particle_velocities[i, k, :]*dt
+                    particle_velocities[i, j, 0] = -particle_velocities[i, j, 0]
+                    particle_positions[i, j, :] = particle_velocities[i, j, :]*dt
 
                 elif particle_positions[i, j, 1] >= box_side_length or particle_positions[i, j, 1] <= 0:
-                    particle_velocities[i, j, :] = particle_velocities[0, k, :]
-                    particle_velocities[i, j, 1] = -particle_velocities[0, 0, 0]
-                    particle_positions[i, j, :] = particle_velocities[i, k, :]*dt
+                    particle_velocities[i, j, 1] = -particle_velocities[i, j, 1]
+                    particle_positions[i, j, :] = particle_velocities[i, j, :]*dt
 
                 elif particle_positions[i, j, 2] >= box_side_length or particle_positions[i, j, 2] <= 0:
-                    particle_velocities[i, j, :] = particle_velocities[0, k, :]
-                    particle_velocities[i, j, 2] = -particle_velocities[0, 0, 0]
-                    particle_positions[i, j, :] = particle_velocities[i, k, :]*dt
+                    particle_velocities[i, j, 2] = -particle_velocities[i, j, 2]
+                    particle_positions[i, j, :] = particle_velocities[i, j, :]*dt
 
                 else:
-                    particle_velocities[i, j, :] = particle_velocities[0, k, :]
-                    particle_positions[i, j, :] = particle_velocities[i, k, :]*dt
+                    particle_positions[i, j, :] = particle_velocities[i, j, :]*dt
+
+    for i in range(len(time)):
+        for j in range(number_of_particles_in_box):
+
 
     return particle_positions, particle_velocities
 
 par_pos, par_vel = simulate_engine_performance(number_of_particles_in_box,
                                                box_side_length,
                                                temperature,
-                                               1)
+                                               box_hole_area)
 print(par_vel)
 """
     thrust_per_box = 1
