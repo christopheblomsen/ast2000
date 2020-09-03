@@ -158,15 +158,21 @@ class nano_motor:
         ax.plot([0,0] ,[self.L,self.L],[self.L,0],color='black')
 
 if __name__ == "__main__":
-    motor = nano_motor(10**-6,10**5,3000,1e-12)
+    dt = 1e-12
+    steps = 1000
+    stepsprsecond = 1/dt
+
+    motor = nano_motor(10**-6,10**5,3000,dt)
 
     motor.plot_velocity(0,'V_x')
     motor.plot_velocity(1,'V_y')
     motor.plot_velocity(2,'V_z')
     #motor.plot_position()
-    for i in range(1000):
+    for i in range(steps):
         motor.step()
     #motor.plot_position()
     plt.legend()
     plt.show()
-    print(f'Thrust {motor.calculated_thrust()} N from {motor.np} particles')
+    print(f'Accumulated momentum {motor.p} from {motor.np} particles in {dt*steps} sec')
+    print(f'Mass loss rate is {motor.np*constants.m_H2/(dt*steps)} kg/s')
+    print(f'Thrust is {motor.calculated_thrust()/(dt*steps)} N')
