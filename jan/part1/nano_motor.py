@@ -7,7 +7,6 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D  # noqa: F401 unused import
 import sys
 
-
 class nano_motor:
 
     #
@@ -102,6 +101,12 @@ class nano_motor:
                 return True
         return False
 
+    # Returns the fuel consumption in kg/s
+    def fuel_consumption(self):
+        # n particles with mass / time we have run the simulation
+        return (self.np * constants.m_H2)/(self.dt*self.steps)
+
+    # Thrust = P/dt where P is momentum and dt is time
     def calculated_thrust(self):
         # Momentum / time
         return self.p/(self.dt*self.steps)
@@ -157,6 +162,19 @@ class nano_motor:
         ax.plot([0,self.L] ,[self.L,self.L],[self.L,self.L],color='black')
         ax.plot([0,0] ,[self.L,self.L],[self.L,0],color='black')
 
+    def __str__(self):
+        if(self.steps == 0):
+            return 'No engine simulation has been run yet. Run the step method n times to produce results'
+
+        line1 = f'Accumulated momentum {self.p} from {self.np} particles in {self.dt*self.steps} sec\n'
+        line2 = f'Mass loss rate is {self.np*constants.m_H2/(self.dt*self.steps)} kg/s\n'
+        line3 = f'Thrust is {self.calculated_thrust()} N'
+        return line1 + line2 + line3
+
+    def __repr__(self):
+        return self.__str__()
+
+
 if __name__ == "__main__":
     dt = 1e-12
     steps = 1000
@@ -175,4 +193,4 @@ if __name__ == "__main__":
     plt.show()
     print(f'Accumulated momentum {motor.p} from {motor.np} particles in {dt*steps} sec')
     print(f'Mass loss rate is {motor.np*constants.m_H2/(dt*steps)} kg/s')
-    print(f'Thrust is {motor.calculated_thrust()/(dt*steps)} N')
+    print(f'Thrust is {motor.calculated_thrust()} N')
