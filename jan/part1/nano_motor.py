@@ -78,7 +78,7 @@ class nano_motor:
         # We assume the velocity in the z axis is negative because it is entering from "above"
         self.v[2,n] = abs(np.random.normal(self.mu,self.sigma))*-1
 
-    # Detect if particle goes beyond the box
+    # Detect if particle goes beyond the box and returns updated velocity
     def detect_collision(self,i, n):
         if self.pos[i,n] >= self.L or self.pos[i,n] <= 0:
             #print(f'COLLISION for particle {n} on axis {i}')
@@ -97,7 +97,7 @@ class nano_motor:
         if self.pos[0,n] >= self.start and self.pos[0,n] <= self.end:
             if self.pos[1,n] >= self.start and self.pos[1,n] <= self.end:
                 # Since exit is in the negative direction on the z axis we take the absolute value of velocity
-                self.p = self.p + (abs(self.v[2,n])*constants.m_H2)/self.dt #Calculate and update momentum.
+                self.p = self.p + (abs(self.v[2,n])*constants.m_H2) #Calculate and update momentum p = m*v
                 return True
         return False
 
@@ -106,7 +106,7 @@ class nano_motor:
         # n particles with mass / time we have run the simulation
         return (self.np * constants.m_H2)/(self.dt*self.steps)
 
-    # Thrust = P/dt where P is momentum and dt is time
+    # Thrust = P/dt in N where P is momentum and dt is time
     def calculated_thrust(self):
         # Momentum / time
         return self.p/(self.dt*self.steps)
@@ -170,7 +170,7 @@ class nano_motor:
         if(self.steps == 0):
             return 'No engine simulation has been run yet. Run the step method n times to produce results'
 
-        line1 = f'Accumulated momentum {self.p} from {self.np} particles in {self.dt*self.steps} sec\n'
+        line1 = f'Accumulated momentum {self.p} kg m/s from {self.np} particles in {self.dt*self.steps} sec\n'
         line2 = f'Mass loss rate is {self.np*constants.m_H2/(self.dt*self.steps)} kg/s\n'
         line3 = f'Thrust is {self.calculated_thrust()} N'
         return line1 + line2 + line3

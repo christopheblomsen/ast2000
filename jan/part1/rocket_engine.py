@@ -8,6 +8,13 @@ except:
    import pickle
 
 import os
+import sys
+import argparse
+parser = argparse.ArgumentParser()
+parser.add_argument('--run-steps', help='foo help')
+args = parser.parse_args()
+
+print(args.run_steps)
 
 class rocket_engine:
 
@@ -39,16 +46,16 @@ class rocket_engine:
 if __name__ == "__main__":
     dt = 1e-12
     fuel_mass = 2500
-    dv = 10
+    dv = 5
     steps = 1000
-    motors = 500
+    motors = 10**13
     filename = 'nano_motor.pkl'
     mission = SpaceMission(33382)
 
     # Check if previously saved file of nano_motor exists
     # If not simulate motor performance and save it to file
-    # Delete this file if you need to simulate with new parameters
-    if(os.path.exists(filename) == False):
+    # Run with paramterer --run_steps true if you want to simulate again
+    if(os.path.exists(filename) == False or args.run_steps == 'true'):
         motor = nm.nano_motor(10**-6,10**5,3000,dt)
 
         for i in range(steps):
@@ -66,10 +73,10 @@ if __name__ == "__main__":
     print(motor)
 
     engine = rocket_engine(motors,motor)
-    fuel_consumed = engine.boost(mission.spacecraft_mass+fuel_mass,10)
+    fuel_consumed = engine.boost(mission.spacecraft_mass+fuel_mass,dv)
 
     print(f'ENIGNE with {motors:g} motors:')
-    print(f'          Thrust {engine.thrust()/1000:g} kN')
+    print(f'          Thrust {engine.thrust():g} N')
     print(f'Fuel consumption {engine.fuel_consumption():g} kg/s')
     print(f'Fuel consumed after boost to {dv} m/s in {engine.time_needed} sec is {fuel_consumed:.2f} kg')
 
