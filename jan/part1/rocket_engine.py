@@ -1,10 +1,12 @@
 # egen kode
 import nano_motor as nm
 from ast2000tools.space_mission import SpaceMission
+import matplotlib.pyplot as plt
 try:
    import cPickle as pickle
 except:
    import pickle
+
 import os
 
 class rocket_engine:
@@ -24,7 +26,7 @@ class rocket_engine:
 
     # Returns fuel consumption in kg/s
     def fuel_consumption(self):
-        return (self.N * motor.fuel_consumption())
+        return (self.N * self.motor.fuel_consumption())
 
     # Boost the rocket of spacecraft_mass in kg with delta v m/s
     # Returns fuel consumed in kg
@@ -34,39 +36,45 @@ class rocket_engine:
         # thrust we need to change the velocity
         self.time_needed = force_needed/self.thrust()
         return self.time_needed * self.fuel_consumption()
+if __name__ == "__main__":
+    dt = 1e-12
+    fuel_mass = 2500
+    dv = 10
+    steps = 1000
+    motors = 500
+    filename = 'nano_motor.pkl'
+    mission = SpaceMission(33382)
 
-dt = 1e-12
-fuel_mass = 2500
-dv = 10
-steps = 1000
-motors = 10**17
-filename = 'nano_motor.pkl'
-mission = SpaceMission(33382)
+    # Check if previously saved file of nano_motor exists
+    # If not simulate motor performance and save it to file
+    # Delete this file if you need to simulate with new parameters
+    if(os.path.exists(filename) == False):
+        motor = nm.nano_motor(10**-6,10**5,3000,dt)
 
-# Check if previously saved file of nano_motor exists
-# If not simulate motor performance and save it to file
-# Delete this file if you need to simulate with new parameters
-if(os.path.exists(filename) == False):
-    motor = nm.nano_motor(10**-6,10**5,3000,dt)
+        for i in range(steps):
+            print(f'{i:4d}\b\b\b\b', end = '',flush = True)
+            motor.step()
 
-    for i in range(steps):
-        print(f'{i:4d}\b\b\b\b', end = '',flush = True)
-        motor.step()
-
-    with open('nano_motor.pkl', 'wb') as output:
-        pickle.dump(motor, output, pickle.HIGHEST_PROTOCOL)
-else:
-    with open(filename, 'rb') as input:
-        motor = pickle.load(input)
+        with open('nano_motor.pkl', 'wb') as output:
+            pickle.dump(motor, output, pickle.HIGHEST_PROTOCOL)
+    else:
+        with open(filename, 'rb') as input:
+            motor = pickle.load(input)
 
 
-print('Single motor performance:')
-print(motor)
+    print('Single motor performance:')
+    print(motor)
 
-engine = rocket_engine(motors,motor)
-fuel_consumed = engine.boost(mission.spacecraft_mass+fuel_mass,10)
+    engine = rocket_engine(motors,motor)
+    fuel_consumed = engine.boost(mission.spacecraft_mass+fuel_mass,10)
 
-print(f'ENIGNE with {motors:g} motors:')
-print(f'          Thrust {engine.thrust()/1000:g} kN')
-print(f'Fuel consumption {engine.fuel_consumption():g} kg/s')
-print(f'Fuel consumed after boost to {dv} m/s in {engine.time_needed} sec is {fuel_consumed:.2f} kg')
+    print(f'ENIGNE with {motors:g} motors:')
+    print(f'          Thrust {engine.thrust()/1000:g} kN')
+    print(f'Fuel consumption {engine.fuel_consumption():g} kg/s')
+    print(f'Fuel consumed after boost to {dv} m/s in {engine.time_needed} sec is {fuel_consumed:.2f} kg')
+
+    #motor.plot_absolute_velocity('Velocity')
+    #motor.plot_velocity(1,'Vy')
+    #motor.plot_velocity(2,'Vz')
+    #plt.legend()
+    #plt.show()
