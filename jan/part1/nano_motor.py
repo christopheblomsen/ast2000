@@ -22,7 +22,7 @@ class nano_motor:
         self.mu = 0
         self.T = T
         self.dt = dt
-        self.sigma = math.sqrt((constants.k_B*T)/constants.m_H2)
+        self.sigma = math.sqrt((constants.k_B*self.T)/constants.m_H2)
 
         np.random.seed(90207617)
         # The x,y,z position of the particles
@@ -97,7 +97,7 @@ class nano_motor:
         if self.pos[0,n] >= self.start and self.pos[0,n] <= self.end:
             if self.pos[1,n] >= self.start and self.pos[1,n] <= self.end:
                 # Since exit is in the negative direction on the z axis we take the absolute value of velocity
-                self.p = self.p + abs(self.v[2,n])*constants.m_H2 #Calculate and update momentum.
+                self.p = self.p + (abs(self.v[2,n])*constants.m_H2)/self.dt #Calculate and update momentum.
                 return True
         return False
 
@@ -116,8 +116,12 @@ class nano_motor:
     # 1 = y
     # 2 = z
     #
-    def plot_velocity(self,i,label):
-        plt.hist(self.v[i,:],bins=50,density=True,label=label)
+    def plot_velocity(self,i,label,color='blue'):
+        plt.hist(self.v[i,:],bins=50,density=True,label=label,color=color)
+
+    def plot_absolute_velocity(self,label):
+        abs_v = np.sqrt(self.v[0,:]**2+self.v[1,:]**2+self.v[2,:]**2)
+        plt.hist(abs_v,bins=50,density=True,label=label)
 
     #
     # Plots the position of the particles
@@ -180,14 +184,17 @@ if __name__ == "__main__":
     steps = 1000
     stepsprsecond = 1/dt
 
-    motor = nano_motor(10**-6,10**5,3000,dt)
+    motor = nano_motor(10**-6,10**5,3500,dt)
 
     motor.plot_velocity(0,'V_x')
     motor.plot_velocity(1,'V_y')
     motor.plot_velocity(2,'V_z')
     #motor.plot_position()
     for i in range(steps):
+        if(i == steps/2):
+            print(f"Momentum at {i}: {motor.p}")
         motor.step()
+    print(f"Momentum at end: {motor.p}")
     #motor.plot_position()
     plt.legend()
     plt.show()
