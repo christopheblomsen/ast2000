@@ -26,7 +26,7 @@ class rocket_launch:
         # Escape velocity
         v_esc = np.sqrt((2*c.G*self.system.masses[0]*c.m_sun)/(self.system.radii[0]*1000**3))
 
-        print(f"Escape velocity is {v_esc} m/s")
+        print(f"Escape velocity is {v_esc} km/s")
         N = 15000
         # Positions at time step i. Not necessary to store all unless we want to plot afterwards
         pos = np.zeros(N, float)
@@ -103,8 +103,9 @@ start_pos = [mission.system.initial_positions[0,0]+((mission.system.radii[0]*100
 print(f"Start coordinates {start_pos} AU")
 print(f"Engine thrust {engine.thrust()}")
 print(f"Fuel consumption {engine.fuel_consumption()}")
-print(f"Fuel mass {fuel_mass}")
-print(f"Planet radius {mission.system.radii[0]}")
-print(f"Planet mass {mission.system.masses[0]}")
+print(f"Fuel mass {fuel_mass} kg")
+print(f"Planet radius {mission.system.radii[0]:g} km")
+print(f"Planet mass {mission.system.masses[0]*2e30:g} kg")
+print(f"Rotational period: {mission.system.rotational_periods[0]}")
 mission.set_launch_parameters(engine.thrust(),engine.fuel_consumption(),fuel_mass,max_launch_time,start_pos,0)
 mission.launch_rocket()
