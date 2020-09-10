@@ -6,6 +6,11 @@ from ast2000tools import constants
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D  # noqa: F401 unused import
 import sys
+import os
+try:
+   import cPickle as pickle
+except:
+   import pickle
 
 class nano_motor:
 
@@ -61,8 +66,7 @@ class nano_motor:
             self.pos[0] += [self.dt*self.detect_collision(0,n) for n in range(self.N)]
             self.pos[1] += [self.dt*self.detect_collision(1,n) for n in range(self.N)]
             self.pos[2] += [self.dt*self.detect_collision(2,n) for n in range(self.N)]
-            self.steps = self.steps + 1
-        #print(f'particle 0: ({self.pos[0,0]},{self.pos[1,0]},{self.pos[2,0]})')
+            self.steps += 1
         finally:
             return
 
@@ -78,26 +82,21 @@ class nano_motor:
         # We assume the velocity in the z axis is negative because it is entering from "above"
         self.v[2,n] = abs(np.random.normal(self.mu,self.sigma))*-1
 
-    # Detect if particle goes beyond the box
+    # Detect if particle goes beyond the box and returns updated velocity
     def detect_collision(self,i, n):
         if self.pos[i,n] >= self.L or self.pos[i,n] <= 0:
-            #print(f'COLLISION for particle {n} on axis {i}')
-            #print(f'particle {n}: ({self.pos[0,n]},{self.pos[1,n]},{self.pos[2,n]})')
             if(i == 2 and self.pos[i,n] <= 0 and self.detect_exit(n)):
                 self.fill_new_particle(n)
                 self.np = self.np + 1
-                #self.Trhust = self.Thrust +
-                #sys.exit()
             self.v[i,n] = self.v[i,n] * -1
         return self.v[i,n]
 
     # Returns True if particle has passed through exit area
     def detect_exit(self,n):
-        #print(f'Particle position for {n} ({self.pos[0,n]},{self.pos[1,n]},{self.pos[2,n]}) ({self.start},{self.end})')
         if self.pos[0,n] >= self.start and self.pos[0,n] <= self.end:
             if self.pos[1,n] >= self.start and self.pos[1,n] <= self.end:
                 # Since exit is in the negative direction on the z axis we take the absolute value of velocity
-                self.p = self.p + (abs(self.v[2,n])*constants.m_H2)/self.dt #Calculate and update momentum.
+                self.p += (abs(self.v[2,n])*constants.m_H2) #Calculate and update momentum p = m*v
                 return True
         return False
 
@@ -106,10 +105,11 @@ class nano_motor:
         # n particles with mass / time we have run the simulation
         return (self.np * constants.m_H2)/(self.dt*self.steps)
 
-    # Thrust = P/dt where P is momentum and dt is time
+    # Thrust = P/dt in N where P is momentum and dt is time
     def calculated_thrust(self):
         # Momentum / time
         return self.p/(self.dt*self.steps)
+
     #
     # Plots velocity histogram for given direction:
     # 0 = x
@@ -118,10 +118,14 @@ class nano_motor:
     #
     def plot_velocity(self,i,label,color='blue'):
         plt.hist(self.v[i,:],bins=50,density=True,label=label,color=color)
+        plt.xlabel('Velocity m/s')
+        plt.ylabel('Probability')
 
     def plot_absolute_velocity(self,label):
         abs_v = np.sqrt(self.v[0,:]**2+self.v[1,:]**2+self.v[2,:]**2)
         plt.hist(abs_v,bins=50,density=True,label=label)
+        plt.xlabel('Velocity m/s')
+        plt.ylabel('Probability')
 
     #
     # Plots the position of the particles
@@ -170,10 +174,11 @@ class nano_motor:
         if(self.steps == 0):
             return 'No engine simulation has been run yet. Run the step method n times to produce results'
 
-        line1 = f'Accumulated momentum {self.p} from {self.np} particles in {self.dt*self.steps} sec\n'
+        line1 = f'Accumulated momentum {self.p} kg m/s from {self.np} particles in {self.dt*self.steps} sec\n'
         line2 = f'Mass loss rate is {self.np*constants.m_H2/(self.dt*self.steps)} kg/s\n'
-        line3 = f'Thrust is {self.calculated_thrust()} N'
-        return line1 + line2 + line3
+        line3 = f'Thrust is {self.calculated_thrust()} N\n'
+        line4 = f'There are {self.np/(self.dt*self.steps):g} exiting the box pr second'
+        return line1 + line2 + line3 + line4
 
     def __repr__(self):
         return self.__str__()
@@ -182,22 +187,22 @@ class nano_motor:
 if __name__ == "__main__":
     dt = 1e-12
     steps = 1000
-    stepsprsecond = 1/dt
+    N = 10**5 # Number of particles to simulate
+    T = 3500 # Temperature
+    L = 10**-6 # Box side length in m
+    filename = 'nano_motor.pkl'
 
-    motor = nano_motor(10**-6,10**5,3500,dt)
+    if(os.path.exists(filename) == False):
+        motor = nano_motor(L,N,T,dt)
 
-    motor.plot_velocity(0,'V_x')
-    motor.plot_velocity(1,'V_y')
-    motor.plot_velocity(2,'V_z')
-    #motor.plot_position()
-    for i in range(steps):
-        if(i == steps/2):
-            print(f"Momentum at {i}: {motor.p}")
-        motor.step()
-    print(f"Momentum at end: {motor.p}")
-    #motor.plot_position()
-    plt.legend()
-    plt.show()
-    print(f'Accumulated momentum {motor.p} from {motor.np} particles in {dt*steps} sec')
-    print(f'Mass loss rate is {motor.np*constants.m_H2/(dt*steps)} kg/s')
-    print(f'Thrust is {motor.calculated_thrust()} N')
+        for i in range(steps):
+            print(f'{i:4d}\b\b\b\b', end = '',flush = True)
+            motor.step()
+
+        with open('nano_motor.pkl', 'wb') as output:
+            pickle.dump(motor, output, pickle.HIGHEST_PROTOCOL)
+    else:
+        with open(filename, 'rb') as input:
+            motor = pickle.load(input)
+
+    print(motor)
