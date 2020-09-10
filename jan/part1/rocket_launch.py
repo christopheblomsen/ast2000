@@ -18,6 +18,15 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--run-steps', help='foo help')
 args = parser.parse_args()
 
+'''
+Class for launching the rocket_thrust
+
+Takes mission, initial_mass of rocket (including fuel) and one nano_enigne
+as arguments to the constructor
+
+Call launch_process to actually launch the rocket.
+
+'''
 class rocket_launch:
     # A class for calculating the launch of our rocket
     def __init__(self, mission, initial_mass, engine):
@@ -70,6 +79,12 @@ class rocket_launch:
         str = str + f"                    Thrust | {self.thrust/1000:.2f} kN\n"
         return str
 
+    '''
+    Actually launches the rocket and calculates exit velocity and position of rocket.
+
+    dt is delta t in sec. for the Euler Cromer calculation og the ascent
+
+    '''
     def launch_process(self,dt):
 
         current_mass = self.initial_mass
@@ -100,19 +115,22 @@ class rocket_launch:
                 if(a > 0):
                     self.vel[i+1] = self.vel[i] + a*dt
                     self.pos[i+1] = self.pos[i] + self.vel[i+1]*dt
-                    
+
 
         print(f"Final velocity is {v:.6f} km/s")
 mission = SpaceMission(33382)
 dt = 10**-12
 fuel_mass = 41000
-dv = 1000 #np.sqrt((2*c.G*mission.massses[0])/mission.radii[0]*1000**3)
+dv = 1000
 steps = 1000
 motors = 11.0699895**15
 max_launch_time = 1000
 filename = "test_launch.pkl"
 temperature = 3000
 
+'''
+    Check if we should run simulation from scracth or read from file
+'''
 if(os.path.exists(filename) == False or args.run_steps == 'true'):
     motor = nm.nano_motor(10**-6, 10**5, temperature, dt)
 
@@ -126,14 +144,24 @@ else:
     with open(filename, "rb") as input:
         motor = pickle.load(input)
 
+# Construct the engine
 engine = re.rocket_engine(motors, motor)
+
+# Calculate fuel consumed based on boost
 fuel_consumed = engine.boost(mission.spacecraft_mass+fuel_mass, dv)
-print(fuel_consumed)
+
 print(f"Fuel mass {fuel_mass} kg")
+
+# Launch the rocket
 launch = rocket_launch(mission,mission.spacecraft_mass+fuel_mass,engine)
 
+# Prints details of the rocket
 print(launch)
+
+# Launch the rocket
 launch.launch_process(0.01)
+
+# Calculate coordinates in AU after launch
 xp = mission.system.initial_positions[0,0]
 yp = mission.system.initial_positions[1,0]
 pr = (mission.system.radii[0]*1000)/c.AU
@@ -156,6 +184,46 @@ plt.xlabel('Time in sec')
 plt.ylabel('Velocity m/s')
 plt.show()
 
+# Launch the rocket using AST2000tools
 mission.set_launch_parameters(engine.thrust(),engine.fuel_consumption(),fuel_mass,max_launch_time,launch_pos,0)
 mission.launch_rocket()
 mission.verify_launch_result(escape_pos)
+
+'''
+Example running the code:
+
+python rocket_launch.py --run-steps true
+true
+Fuel mass 41000 kg
+Launch parameters:
+                      Name | Value
+=========================================
+               Planet mass | 7311200101015753339174912.00 kg
+             Planet radius | 6622.42 km
+  Planet rotational period | 89145.88 s
+    Planet escape velocity | 12.14 km/s
+Planet rotational velocity | 0.47 km/s
+   Planet orbital velocity | [ 0.         41.82738054] km/s
+          Fuel consumption | 126.49 kg/s
+                    Thrust | 542.27 kN
+
+Escape velocity of Hoth is 12.139587606214251 km/s
+Achieved escape velocity 12.14 km/s
+Our position is 677361.3055238673 meters relative to launch site and it took 324.08 seconds
+It took 40993.03 kg of fuel
+Final velocity is 12.143855 km/s
+Start coordinates [0.36585653049782685, 0.0] AU
+  End coordinates [0.36586105837848687, 2.8271887793580364e-16] AU
+Rocket was moved down by 3.29129e-06 m to stand on planet surface.
+New launch parameters set.
+Launch completed, reached escape velocity in 322.83 s.
+Your spacecraft position deviates too much from the correct position.
+The deviation is approximately 9.12702e-05 AU.
+Make sure you have included the rotation and orbital velocity of your home planet.
+Note that units are AU and relative the the reference system of the star.
+Traceback (most recent call last):
+  File "rocket_launch.py", line 190, in <module>
+    mission.verify_launch_result(escape_pos)
+  File "build/bdist.linux-x86_64/egg/ast2000tools/space_mission.py", line 348, in verify_launch_result
+RuntimeError: Incorrect spacecraft position after launch.
+'''

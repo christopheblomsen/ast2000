@@ -176,8 +176,9 @@ class nano_motor:
 
         line1 = f'Accumulated momentum {self.p} kg m/s from {self.np} particles in {self.dt*self.steps} sec\n'
         line2 = f'Mass loss rate is {self.np*constants.m_H2/(self.dt*self.steps)} kg/s\n'
-        line3 = f'Thrust is {self.calculated_thrust()} N'
-        return line1 + line2 + line3
+        line3 = f'Thrust is {self.calculated_thrust()} N\n'
+        line4 = f'There are {self.np/(self.dt*self.steps):g} exiting the box pr second'
+        return line1 + line2 + line3 + line4
 
     def __repr__(self):
         return self.__str__()
