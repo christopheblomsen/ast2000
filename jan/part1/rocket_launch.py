@@ -187,6 +187,7 @@ plt.show()
 
 # Launch the rocket using AST2000tools
 mission.set_launch_parameters(engine.thrust(),engine.fuel_consumption(),fuel_mass,max_launch_time,launch_pos,0)
+
 mission.launch_rocket()
 
 # Appluy shortcut
