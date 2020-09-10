@@ -14,6 +14,7 @@ try:
 except:
     import pickle
 import argparse
+from ast2000tools.shortcuts import SpaceMissionShortcuts
 parser = argparse.ArgumentParser()
 parser.add_argument('--run-steps', help='foo help')
 args = parser.parse_args()
@@ -187,7 +188,17 @@ plt.show()
 # Launch the rocket using AST2000tools
 mission.set_launch_parameters(engine.thrust(),engine.fuel_consumption(),fuel_mass,max_launch_time,launch_pos,0)
 mission.launch_rocket()
-mission.verify_launch_result(escape_pos)
+
+# Appluy shortcut
+shortcuts = SpaceMissionShortcuts(mission, [38433])
+consumed_fuel_mass, final_time, final_position, final_velocity = shortcuts.get_launch_results()
+print(f'Consumed fuel {consumed_fuel_mass}')
+print(f'Final time {final_time}')
+print(f'Final position {final_position}')
+print(f'Final velocity {final_velocity}')
+mission.verify_launch_result(final_position)
+
+SpaceMission.save('part1.bin',mission)
 
 '''
 Example running the code:
