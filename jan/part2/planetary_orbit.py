@@ -5,19 +5,19 @@ from ast2000tools.solar_system import SolarSystem
 
 system = SolarSystem(33382)
 
+theta = np.linspace(0, 2*np.pi, 1000)                           # Angle running full circle with 1000 steps
+r = lambda a, e, theta : (a*(1 - e**2))/(1 + e*np.cos(theta))   # Function for position
 
-e = 0
-a = []
-
-theta = np.linspace(0, 2*np.pi, 1000)
-r = lambda a, e, theta : (a*(1 - e**2))/(1 + e*np.cos(theta))
-radii = system.radii
-
-for planet_idx in range(system.number_of_planets):
-    a.append(system.semi_major_axes[planet_idx])
+a = system.semi_major_axes                                      # assigns the semi major axes
+e = system.eccentricities                                       # assigns the eccentricities
 
 for i in range(len(a)):
-    plt.polar(theta, r(a[i], e, theta)) #, label=f'Planet number {i}')
+    '''
+    Plots all the planets
+    '''
+    plt.polar(theta, r(a[i], e[i], theta))
 
-# plt.legend()
+plt.title('Hoth system')
 plt.show()
+
+
