@@ -6,4 +6,10 @@ Gaussisk fordeling-png Gaussisk fordeling Wolfram Alpha LLC. 2020. Wolfram|Alpha
 
 Moment.png (Jan Magne Andersen)
 
+<<<<<<< HEAD
 midpoint https://en.wikipedia.org/wiki/Midpoint_method#/media/File:Midpoint_method_illustration.png
+=======
+hoth. (https://www.starwars.com/databank/hoth)
+
+roundabout (https://www.yatesplaygrounds.co.uk/products/playground-roundabouts)
+>>>>>>> ff0dd1a0544347b9d7cf7fc31ec655fcd31740c2
