@@ -1,0 +1,11 @@
+Og alt dette før vi går tom for mat. HÆ! Glemte du matpakken vår Chewie!!!! Vell da er det bare å sette i gang da.
+
+For å være litt systematiske og ikke lage alt for lange blogg innlegg for dere så tenker jeg at vi holder også til det første punktet for nå.
+
+Men hvordan skal vi tegne disse planetbanene våres da????? Skal vi liksom ta ut passer og linjal og bare sette igang? Nei, vi kommer til å la dataen gjøre det for oss. Det er jammen meg bra at den kan gjøre flere ting enn å se på likesa dinne på bloggen din, hvis ikke så hadde dette blitt ett kort blogg eventyr.
+
+Men hvor skal vi nå så starte da? Jeg kommer til det. Men først så tenker jeg at vi skal starte med å introdusere polar koordinater for dere. "Polar hvafornoe?" Nei, da handler ikke om hvordan vi måler polene våres. Nei, vi får starte med noe som dere sikkert kjenner igjen. Kartesiske koordinater:
+
+[Klikk og dra for å flytte] Som dere ser på siden her [1]. Da blir det jo hvis vi vil forklare det grønne punktet så går vi 2 skritt langt x-aksen også 3 skritt opp y-aksen. Eller på matte språket (2,3). Tilsvarende for rødt punkt, så går vi 3 skritt i negativ x retning og 1 skritt i positiv y retning eller i matte (-3, 1). "Flott! Ja, nei dette kan jeg jo fra ungdomskolen? Det finnes da vell ikke noe bedre enn dette?" Vell, ja og nei egentlig. Til noen ting så er de kartesiske koordinatene best å bruke. Regner du på firkanter og kuber for eksempel som ikke er avhenging av noe vinkler, men kun avhengig av lengden på ting så kan det fort lønne seg at å bruke disse gamle gode kjenningene våres over. Men hva så hvis vi er mer interesert i vinkelen og avstanden til sentrum. Er det da best å bruke kartesiske? Vell hvis punktet du ser på er akkurat på x eller y aksen så er det jo relativt greit. Siden da kan du jo bare lese rett av. Men hva så hvis den er 45º opp fra x-aksen? Eller Sith forby, 11.38° opp? Hvordan skal du forklare det enkelt med x og y?
+
+Nei da må vi jo litt inn i trigonometrien da. 
