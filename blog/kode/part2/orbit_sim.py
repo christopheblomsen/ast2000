@@ -5,7 +5,6 @@ from ast2000tools.solar_system import SolarSystem
 import ast2000tools.constants as c
 import os
 import sys
-import unittest
 try:
     import cPickle as pickle
 except:
@@ -29,11 +28,11 @@ class orbit_sim:
         self.G = 4*np.pi**2                     # AU**3 yr**-2 SolarMass**-1
         self.M = self.system.star_mass          # Star mass in solar mass
 
-
     def leapfrog(self, r0, v0, T, dt, m):
         '''
         Leapfrog integration
         '''
+        G = self.G                              # For less writing
         N = int(T/(20*dt))                      # Length of all our vectors
         t = np.zeros(N, float)                  # time array
         M = self.M                              # Star mass
@@ -63,7 +62,6 @@ class orbit_sim:
 
         return r, v, a, t
 
-
     def sim(self):
         '''
         Simulating all the orbits
@@ -83,14 +81,13 @@ class orbit_sim:
 
             r0 = planet_pos[i]                              # Gets i'th planet starting pos
             v0 = planet_vel[i]                              # --||--                    velocity
-            r, v, a , t = self.leapfrog(r0, v0, T, dt, m)   # runs leapfrog and returns
+            r, v, a, t = self.leapfrog(r0, v0, T, dt, m)    # runs leapfrog and returns
 
             r_p, theta = self.cartesian_polar(r)            # Converts to polar
             plt.polar(theta, r_p)                           # plots polar
             self.analytical_solution()                      # analytical
             # plt.plot(r[:, 0], r[:, 1])
         plt.show()
-
 
     def cartesian_polar(self, r):
         '''
@@ -102,7 +99,6 @@ class orbit_sim:
         theta = np.arctan(y/x)                              # theta
         return r, theta
 
-
     def polar_cartesian(self, r, theta):
         '''
         Converts to cartesian
@@ -111,15 +107,18 @@ class orbit_sim:
         y = r*np.sin(theta)                                 # calculates y
         return x, y
 
-
     def analytical_solution(self):
         theta = np.linspace(0, 2*np.pi, 1000)               # array from 0 to 2pi
-        r = lambda a, e, theta : (self.a*(1 - self.e**2))/(1 + self.e*np.cos(theta))
-                                                            # Analytical formula
+
+        def r(a, e, theta):
+            '''
+            Analytical formula
+            '''
+            ans = (self.a*(1 - self.e**2))/(1 + self.e*np.cos(theta))
+            return ans
 
         for i in range(len(self.a)):
             plt.polar(theta, r(self.a[i], self.e[i], theta))
-
 
 
 if __name__ == '__main__':
