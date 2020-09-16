@@ -2,7 +2,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from ast2000tools.solar_system import SolarSystem
-
+import ast2000tools.constants as c
 
 class orbit_sim:
     '''
@@ -16,8 +16,8 @@ class orbit_sim:
         Need to figure this one out
         '''
         self.system = SolarSystem(seed)
-        a = self.system.semi_major_axes
-        e = self.system.eccentricities
+        self.a = self.system.semi_major_axes
+        self.e = self.system.eccentricities
 
     def plot(self):
         '''
@@ -29,18 +29,27 @@ class orbit_sim:
         '''
         Leapfrog integration
         '''
-        t = dt
+        G = c.G
         N = int(T/dt)
+        t = np.linspace(0, T, N)
 
-        x = x0
-        v = v0
+        x = np.zeros((N, 2), float)
+        v = np.zeros((N, 2), float)
+        R = np.zeros((N, 2), float)
+
+        distance = np.zeros(N, float)
+
+        x[0, :] = x0
+        v[0, :] = v0
 
         for i in range(N):
-            a_i = R(t) - P(t)*v - Q(t)*x
-            t += dt
-            x += v*dt + 0.5*a_i*dt**2
-            a_i_pluss1 = R(t) - P(t)*v - Q(t)*x
-            v += 0.5*(a_i + a_i_pluss1)*dt
-            a_i = a_i_pluss1
+            a[i, :] = -G*M*m/(distance[i]**2) * R[i, :]
 
-        return x
+            x[i + 1, :] = v[i, :]*dt + 0.5*a[i, :]*dt**2
+            distance[i + 1] = np.linalg.norm(x[i + 1, :] - [0, 0])
+
+            a[i + 1, :] = -G*M*m/(distance[i + 1]**2) * R[i + 1, :]
+            v[i + 1, :] = 0.5*(a[i, :] + a[i + 1, :])*dt
+            a[i, :] = a[i + 1, :]
+
+        return x, v, a
