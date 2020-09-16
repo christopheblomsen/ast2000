@@ -49,16 +49,8 @@ class rocket_launch:
         # Planet radius in m
         self.r = self.system.radii[0]*1000
 
-
-        self.pos[0] = 1
-        pos0 = np.array([0, 0, 0])
-        rotational_period = self.system.rotational_periods[0]*86400  # s
-        rotational_speed = (2*np.pi*self.system.radii[0])/rotational_period
-        v = np.array([rotational_speed, 0, 0])
-
         # The rotational period of our planet in seconds
         self.rp_sec = self.system.rotational_periods[0]*86400
-
 
         # Rotational velocity in m/s
         self.rv = 2*np.pi*self.r/self.rp_sec
