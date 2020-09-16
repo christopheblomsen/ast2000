@@ -22,33 +22,33 @@ class orbit_sim:
         '''
         Need to figure this one out
         '''
-        self.system = SolarSystem(seed)         # Our famous system
-        self.a = self.system.semi_major_axes    # All the semi major axes for formulas
-        self.e = self.system.eccentricities     # All the eccentricities for formulas
-        self.G = 4*np.pi**2                     # AU**3 yr**-2 SolarMass**-1
-        self.M = self.system.star_mass          # Star mass in solar mass
+        self.system = SolarSystem(seed)          # Our famous system
+        self.axes = self.system.semi_major_axes  # All the semi major axes for formulas
+        self.e = self.system.eccentricities      # All the eccentricities for formulas
+        self.G = 4*np.pi**2                      # AU**3 yr**-2 SolarMass**-1
+        self.M = self.system.star_mass           # Star mass in solar mass
 
     def leapfrog(self, r0, v0, T, dt, m):
         '''
         Leapfrog integration
         '''
-        G = self.G                              # For less writing
-        N = int(T/(20*dt))                      # Length of all our vectors
-        t = np.zeros(N, float)                  # time array
-        M = self.M                              # Star mass
-        r = np.zeros((N, 2), float)             # Position vector
-        v = np.zeros((N, 2), float)             # Velocity vector
-        a = np.zeros((N, 2), float)             # Acceleration vector
+        G = self.G                               # For less writing
+        N = int(T/dt)                            # Length of all our vectors
+        t = np.zeros(N, float)                   # time array
+        M = self.M                               # Star mass
+        r = np.zeros((N, 2), float)              # Position vector
+        v = np.zeros((N, 2), float)              # Velocity vector
+        a = np.zeros((N, 2), float)              # Acceleration vector
 
-        distance = np.zeros(N, float)           # Distance array
+        distance = np.zeros(N, float)            # Distance array
 
-        distance[0] = np.linalg.norm(r0)        # Sets initial conditions
+        distance[0] = np.linalg.norm(r0)         # Sets initial conditions
         r[0, :] = r0
         v[0, :] = v0
         t[0] = 0
 
         a[0, :] = -G*M/(distance[0]**3) * r[0, :]
-        for i in range(N):
+        for i in range(N-1):
             '''
             The actual leapfrog algorithm
             '''
@@ -68,15 +68,15 @@ class orbit_sim:
         '''
         mu = self.G*self.M                                  # Standard gravitational parameter
 
-        orbital_period = 2*np.pi*np.sqrt(self.a**3/mu)      # One year
-        T = 20*orbital_period                               # 20 years
-
         N = len(self.system.masses)                         # Length for for loop
-        dt = orbital_period/10000                           # Timestep for 1 year
 
         planet_pos = self.system.initial_positions[0, :]    # Initial planets positions
         planet_vel = self.system.initial_velocities[0, :]   # Initial planets velocities
         for i in range(N):
+            orbital_period = 2*np.pi*np.sqrt(self.axes[i]**3/mu)      # One year
+            T = 20*orbital_period                               # 20 years
+            dt = orbital_period/10000                           # Timestep for 1 year
+
             m = self.system.masses[i]                       # Gets i'th planet mass
 
             r0 = planet_pos[i]                              # Gets i'th planet starting pos
@@ -86,7 +86,7 @@ class orbit_sim:
             r_p, theta = self.cartesian_polar(r)            # Converts to polar
             plt.polar(theta, r_p)                           # plots polar
             self.analytical_solution()                      # analytical
-            # plt.plot(r[:, 0], r[:, 1])
+            #plt.plot(r[:, 0], r[:, 1])
         plt.show()
 
     def cartesian_polar(self, r):
@@ -95,9 +95,10 @@ class orbit_sim:
         '''
         x = r[:, 0]                                         # x values
         y = r[:, 1]                                         # y values
-        r = np.linalg.norm(r)                               # distance from origo
+        r_p = np.linalg.norm(r)
+        #r = np.sqrt(x**2 + y**2)                            # distance from origo
         theta = np.arctan(y/x)                              # theta
-        return r, theta
+        return r_p, theta
 
     def polar_cartesian(self, r, theta):
         '''
@@ -110,15 +111,15 @@ class orbit_sim:
     def analytical_solution(self):
         theta = np.linspace(0, 2*np.pi, 1000)               # array from 0 to 2pi
 
-        def r(a, e, theta):
+        def r(axes, e, theta):
             '''
             Analytical formula
             '''
-            ans = (self.a*(1 - self.e**2))/(1 + self.e*np.cos(theta))
+            ans = (axes*(1 - e**2))/(1 + e*np.cos(theta))
             return ans
 
-        for i in range(len(self.a)):
-            plt.polar(theta, r(self.a[i], self.e[i], theta))
+        for i in range(len(self.axes)):
+            plt.polar(theta, r(self.axes[i], self.e[i], theta))
 
 
 if __name__ == '__main__':
