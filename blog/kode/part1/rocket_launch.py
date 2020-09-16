@@ -239,3 +239,4 @@ Traceback (most recent call last):
   File "build/bdist.linux-x86_64/egg/ast2000tools/space_mission.py", line 348, in verify_launch_result
 RuntimeError: Incorrect spacecraft position after launch.
 '''
+
