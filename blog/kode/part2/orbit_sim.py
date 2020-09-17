@@ -167,6 +167,12 @@ class orbit_sim:
     def plot(self):
         plt.show()
 
+    def solar_orbit(self):
+        '''
+        Comment
+        '''
+        pass
+
 
 """
 if __name__ == '__main__':
