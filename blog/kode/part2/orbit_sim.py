@@ -9,7 +9,13 @@ try:
     import cPickle as pickle
 except:
     import pickle
+import argparse
 
+
+parser = argparse.ArgumentParser()
+parser.add_argument('-rs','--run-sim',action='store_true', help='Runs the simulation of orbits from scratch and saves the result')
+parser.add_argument('-d','--download',action='store_true', help='Downloads pickle file')
+args = parser.parse_args()
 
 class orbit_sim:
     '''
@@ -27,6 +33,8 @@ class orbit_sim:
         self.e = self.system.eccentricities      # All the eccentricities for formulas
         self.G = 4*np.pi**2                      # AU**3 yr**-2 SolarMass**-1
         self.M = self.system.star_mass           # Star mass in solar mass
+        self.r_numerical = []                    # List with the results of the numerical solution
+        self.r_analytical = []                   # List with the results of the analytical solution
 
     def leapfrog(self, r0, v0, T, dt):
         '''
@@ -94,6 +102,7 @@ class orbit_sim:
         '''
         Simulating all the orbits
         '''
+        print('Simulating orbits')
         mu = self.G*self.M                                  # Standard gravitational parameter
 
         N = len(self.system.masses)                         # Length for for loop
@@ -101,6 +110,7 @@ class orbit_sim:
         planet_pos = self.system.initial_positions    # Initial planets positions
         planet_vel = self.system.initial_velocities   # Initial planets velocities
         for i in range(N):
+            print(f'Working on planet {i}')
             orbital_period = 2*np.pi*np.sqrt(self.axes[i]**3/mu)      # One year
             T = 20*orbital_period                               # 20 years
             dt = orbital_period/10000                           # Timestep for 1 year
@@ -108,21 +118,11 @@ class orbit_sim:
             m = self.system.masses[i]                       # Gets i'th planet mass
 
             r0 = planet_pos[:, i]                              # Gets i'th planet starting pos
-            #print(r0)
+
             v0 = planet_vel[:, i]                              # --||--                    velocity
             r, v, a, t = self.leapfrog(r0, v0, T, dt)    # runs leapfrog and returns
-            #r, v, a, t = self.euler_cromer(r0, v0, T, dt) # runs euler_cromer
-            for j in range(10):
-                print(f'x for planet{j+1} = {r[j, 0]} and y = {r[j, 1]}')
-            #r_p, theta = self.cartesian_polar(r)            # Converts to polar
-            #plt.polar(theta, r_p)                           # plots polar
             self.analytical_solution()                      # analytical
-            plt.plot(r[:, 0], r[:, 1])
-            plt.axis('equal')
-        plt.xlabel('x')
-        plt.ylabel('y')
-        plt.title('Hoth system')
-        plt.show()
+            self.r_numerical.append(r)
 
     def cartesian_polar(self, r):
         '''
@@ -160,18 +160,37 @@ class orbit_sim:
             return ans
 
         for i in range(len(self.axes)):
-            #plt.polar(theta, r(self.axes[i], self.e[i], theta))
             x, y = self.polar_cartesian(r(self.axes[i], self.e[i], theta), theta)
-            plt.plot(x, y)
+            self.r_analytical.append([x,y])
 
     def plot(self):
+        for r in self.r_numerical:
+            plt.plot(r[:, 0], r[:, 1])
+            plt.axis('equal')
+
+        for a in self.r_analytical:
+            plt.plot(a[0],a[1])
+
+        plt.xlabel('x')
+        plt.ylabel('y')
+        plt.title('Hoth system')
+
         plt.show()
 
 
-"""
 if __name__ == '__main__':
     filename = "simulated_orbits.pkl"
-    if (os.path.exists(filename) == False):
+    url = 'https://www.uio.no/studier/emner/matnat/astro/AST2000/h20/blogger/Flukten%20fra%20Hoth/data/simulated_orbits.pkl'
+    if (os.path.exists(filename) == False or args.download==True):
+        try:
+            import requests
+            r = requests.get(url, allow_redirects=True)
+
+            open(filename, 'wb').write(r.content)
+        except:
+            print('You need to install requests to download file: pip install requests')
+            
+    if (os.path.exists(filename) == False or args.run_sim==True):
         orbit = orbit_sim()
         orbit.sim()
 
@@ -180,6 +199,5 @@ if __name__ == '__main__':
     else:
         with open(filename, 'rb') as input:
             orbit = pickle.load(input)
-"""
-orbit = orbit_sim()
-orbit.sim()
+
+orbit.plot()
