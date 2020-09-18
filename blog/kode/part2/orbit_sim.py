@@ -33,8 +33,12 @@ class orbit_sim:
         self.e = self.system.eccentricities      # All the eccentricities for formulas
         self.G = 4*np.pi**2                      # AU**3 yr**-2 SolarMass**-1
         self.M = self.system.star_mass           # Star mass in solar mass
+
         self.r_numerical = []                    # List with the results of the numerical solution
         self.r_analytical = []                   # List with the results of the analytical solution
+
+        self.mu = self.G*self.M                  # Standard gravitational parameter
+
 
     def leapfrog(self, r0, v0, T, dt):
         '''
@@ -60,14 +64,12 @@ class orbit_sim:
             '''
             The actual leapfrog algorithm
             '''
-            r[i + 1, :] = r[i,:] + v[i, :]*dt + 0.5*a[i, :]*dt**2
+            r[i + 1, :] = r[i, :] + v[i, :]*dt + 0.5*a[i, :]*dt**2
             distance[i + 1] = np.linalg.norm(r[i + 1, :])
 
             a[i + 1, :] = -G*M/(distance[i + 1]**3) * r[i + 1, :]
             v[i + 1, :] = v[i, :] + 0.5*(a[i, :] + a[i + 1, :])*dt
-            #a[i, :] = a[i + 1, :]
             t[i + 1] = t[i] + dt
-            #print(f'F = {m*a[i, :]}')
 
         return r, v, a, t
 
@@ -102,13 +104,16 @@ class orbit_sim:
         '''
         Simulating all the orbits
         '''
+
         print('Simulating orbits')
-        mu = self.G*self.M                                  # Standard gravitational parameter
 
-        N = len(self.system.masses)                         # Length for for loop
+        mu = self.mu                                                # Standard gravitational parameter
 
-        planet_pos = self.system.initial_positions    # Initial planets positions
-        planet_vel = self.system.initial_velocities   # Initial planets velocities
+
+        N = len(self.system.masses)                                 # Length for for loop
+
+        planet_pos = self.system.initial_positions                  # Initial planets positions
+        planet_vel = self.system.initial_velocities                 # Initial planets velocities
         for i in range(N):
             print(f'Working on planet {i}')
             orbital_period = 2*np.pi*np.sqrt(self.axes[i]**3/mu)      # One year
@@ -124,17 +129,18 @@ class orbit_sim:
             self.analytical_solution()                      # analytical
             self.r_numerical.append(r)
 
+
     def cartesian_polar(self, r):
         '''
         Converts to polar coordinates
         '''
-        x = r[:, 0]                                         # x values
-        y = r[:, 1]                                         # y values
+        x = r[:, 0]                             # x values
+        y = r[:, 1]                             # y values
         r_p = np.zeros(len(r))
         for i in range(len(r)):
             r_p[i] = np.linalg.norm(r[i])
-        #r = np.sqrt(x**2 + y**2)                            # distance from origo
-        theta = np.arctan(y/x)                              # theta
+        # r = np.sqrt(x**2 + y**2)              # distance from origo
+        theta = np.arctan(y/x)                  # theta
         return r_p, theta
 
     def polar_cartesian(self, r, theta):
@@ -145,12 +151,12 @@ class orbit_sim:
         x = np.zeros(N, float)
         y = np.zeros(N, float)
         for i in range(N):
-            x[i] = r[i]*np.cos(theta[i])                                 # calculates x
-            y[i] = r[i]*np.sin(theta[i])                                 # calculates y
+            x[i] = r[i]*np.cos(theta[i])        # calculates x
+            y[i] = r[i]*np.sin(theta[i])        # calculates y
         return x, y
 
     def analytical_solution(self):
-        theta = np.linspace(0, 2*np.pi, 1000)               # array from 0 to 2pi
+        theta = np.linspace(0, 2*np.pi, 1000)   # array from 0 to 2pi
 
         def r(axes, e, theta):
             '''
@@ -176,6 +182,12 @@ class orbit_sim:
         plt.title('Hoth system')
 
         plt.show()
+
+    def solar_orbit(self):
+        '''
+        Comment
+        '''
+        pass
 
 
 if __name__ == '__main__':
