@@ -225,7 +225,7 @@ if __name__ == '__main__':
             open(filename, 'wb').write(r.content)
         except:
             print('You need to install requests to download file: pip install requests')
-            
+
     if (os.path.exists(filename) == False or args.run_sim==True):
         orbit = orbit_sim()
         orbit.sim()
