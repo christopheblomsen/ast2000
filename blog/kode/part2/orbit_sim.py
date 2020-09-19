@@ -183,11 +183,35 @@ class orbit_sim:
 
         plt.show()
 
-    def solar_orbit(self):
+    def solar_orbit(self, planet):
         '''
         Comment
         '''
-        pass
+        star_initial_pos = np.array([0, 0])
+        star_initial_vel = np.array([0, 0])
+        M = self.M
+        m = self.system.masses[planet]
+
+        orbital_period = 2*np.pi*np.sqrt(self.axes[planet]**3/mu)      # One year
+        dt = orbital_period/100000
+
+        masses = np.array([m, M])
+
+        N = len(m)
+
+        for i in range(N):
+
+
+
+
+    def center_mass(self, m, r):
+        M = np.sum(m)
+        R = np.array([0, 0])
+
+        for i in range(len(r)):
+            R = R + m[i] * r[i]
+
+        self.R = R/M
 
 
 if __name__ == '__main__':
