@@ -115,7 +115,7 @@ class orbit_sim:
         planet_pos = self.system.initial_positions                  # Initial planets positions
         planet_vel = self.system.initial_velocities                 # Initial planets velocities
         for i in range(N):
-            print(f'Working on planet {i}')
+            print(f'Working on planet {i+1}')
             orbital_period = 2*np.pi*np.sqrt(self.axes[i]**3/mu)      # One year
             T = 20*orbital_period                               # 20 years
             dt = orbital_period/10000                           # Timestep for 1 year
@@ -177,8 +177,8 @@ class orbit_sim:
         for a in self.r_analytical:
             plt.plot(a[0],a[1])
 
-        plt.xlabel('x')
-        plt.ylabel('y')
+        plt.xlabel('x[AU]')
+        plt.ylabel('y[AU]')
         plt.title('Hoth system')
 
         plt.show()
@@ -198,11 +198,6 @@ class orbit_sim:
         masses = np.array([m, M])
 
         N = len(m)
-
-        for i in range(N):
-
-
-
 
     def center_mass(self, m, r):
         M = np.sum(m)
