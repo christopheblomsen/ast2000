@@ -142,6 +142,84 @@ class orbit_sim:
         print(np.shape(verification_t))
         return verification_r, verification_t, self.system
 
+    def solar_orbit(self, planet):
+        '''
+        Comment
+        '''
+        star_initial_pos = np.array([0, 0])
+        star_initial_vel = np.array([0, 0])
+
+        planet_pos = self.system.initial_positions[:, planet]
+        planet_vel = self.system.initial_velocities[:, planet]
+
+        M = self.M
+        m = self.system.masses[planet]
+        mu = self.G*(M + self.system.masses[planet])
+
+        orbital_period = 2*np.pi*np.sqrt(self.axes[planet]**3/mu)      # One year
+        dt = orbital_period/100000
+
+        masses = np.array([m, M])
+        N = len(m)
+
+        r = planet_pos - star_initial_pos
+
+        center_of_mass_R = self.center_mass(masses, r)
+
+    def sim_solar_orbit(self, r0, v0, dt):
+        '''
+        Simulating solar orbit
+        '''
+        G = self.G                               # For less writing
+        N = int(T/dt)                            # Length of all our vectors
+        t = np.zeros(N, float)                   # time array
+        M = self.M                               # Star mass
+
+        r_planet = np.zeros((N, 2), float)       # Position vector
+        v_planet = np.zeros((N, 2), float)       # Velocity vector
+        a_planet = np.zeros((N, 2), float)       # Acceleration vector
+
+        r_sol = np.zeros((N, 2), float)          # Position vector
+        v_sol = np.zeros((N, 2), float)          # Velocity vector
+        a_sol = np.zeros((N, 2), float)          # Acceleration vector
+
+        distance = np.zeros(N, float)            # Distance array
+
+        distance[0] = np.linalg.norm(r0)         # Sets initial conditions
+        r_planet[0, :] = r0
+        v_planet[0, :] = v0
+        t[0] = 0
+
+        a_planet[0, :] = -G*M/(distance[0]**3) * r[0, :]
+
+        r_sol[0, :] = r0
+        v_sol[0, :] = v0
+        a_sol[0, :] = -G*M/(distance[0]**3) * r[0, :]
+        for i in range(N-1):
+            '''
+            The actual leapfrog algorithm
+            '''
+            r[i + 1, :] = r[i, :] + v[i, :]*dt + 0.5*a[i, :]*dt**2
+            distance[i + 1] = np.linalg.norm(r[i + 1, :])
+
+            a[i + 1, :] = -G*M/(distance[i + 1]**3) * r[i + 1, :]
+            v[i + 1, :] = v[i, :] + 0.5*(a[i, :] + a[i + 1, :])*dt
+            t[i + 1] = t[i] + dt
+
+        return r, v, a, t
+
+
+    def center_mass(self, m, r):
+        M = np.sum(m)
+        R = np.array([0, 0])
+
+        for i in range(len(r)):
+            R = R + m[i] * r[i]
+
+        self.R = R/M
+
+        return self.R
+
     def cartesian_polar(self, r):
         '''
         Converts to polar coordinates
@@ -195,30 +273,6 @@ class orbit_sim:
 
         plt.show()
 
-    def solar_orbit(self, planet):
-        '''
-        Comment
-        '''
-        star_initial_pos = np.array([0, 0])
-        star_initial_vel = np.array([0, 0])
-        M = self.M
-        m = self.system.masses[planet]
-
-        orbital_period = 2*np.pi*np.sqrt(self.axes[planet]**3/mu)      # One year
-        dt = orbital_period/100000
-
-        masses = np.array([m, M])
-
-        N = len(m)
-
-    def center_mass(self, m, r):
-        M = np.sum(m)
-        R = np.array([0, 0])
-
-        for i in range(len(r)):
-            R = R + m[i] * r[i]
-
-        self.R = R/M
 
 
 if __name__ == '__main__':
