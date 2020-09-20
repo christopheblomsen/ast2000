@@ -31,6 +31,7 @@ class orbit_sim:
         self.e = self.system.eccentricities      # All the eccentricities for formulas
         self.G = c.G_sol                      # AU**3 yr**-2 SolarMass**-1
         self.M = self.system.star_mass           # Star mass in solar mass
+        self.m = self.system.masses[5]           # Home planet mass
 
         self.r_numerical = []                    # List with the results of r from the numerical solution
         self.v_numerical = []                    # List with the results of v from the numerical solution
@@ -190,8 +191,10 @@ class orbit_sim:
         self.dt = rotational_orbit_in_years[0]/self.timesteps_pr_orbit # Find dt based on timesteps pr year
         planet_pos = self.system.initial_positions                  # Initial planets positions
         planet_vel = self.system.initial_velocities                 # Initial planets velocities
+        verification_r = np.zeros((2, N, int(T/self.dt)), float)
+        #verification_t = []
         for i in range(N):
-            print(f'Working on planet {i}')
+            print(f'Working on planet {i+1}')
             print(f'Orbit in years {2*np.pi*np.sqrt(self.axes[i]**3/mu[i])}')
             m = self.system.masses[i]                                   # Gets i'th planet mass
 
@@ -240,7 +243,7 @@ class orbit_sim:
 
         for i in range(len(self.axes)):
             x, y = self.polar_cartesian(r(self.axes[i], self.e[i], theta), theta)
-            self.r_analytical.append([y,x])
+            self.r_analytical.append([x, y])
 
     def plot(self):
         i = 0
@@ -279,11 +282,30 @@ class orbit_sim:
 
         plt.show()
 
-    def solar_orbit(self):
+    def solar_orbit(self, planet):
         '''
         Comment
         '''
-        pass
+        star_initial_pos = np.array([0, 0])
+        star_initial_vel = np.array([0, 0])
+        M = self.M
+        m = self.system.masses[planet]
+
+        orbital_period = 2*np.pi*np.sqrt(self.axes[planet]**3/mu)      # One year
+        dt = orbital_period/100000
+
+        masses = np.array([m, M])
+
+        N = len(m)
+
+    def center_mass(self, m, r):
+        M = np.sum(m)
+        R = np.array([0, 0])
+
+        for i in range(len(r)):
+            R = R + m[i] * r[i]
+
+        self.R = R/M
 
 
 if __name__ == '__main__':

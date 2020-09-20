@@ -39,7 +39,7 @@ def print_table(a,b,labels,title):
         print(labels[i],end=',')
     print('')
     for i in range(len(a)):
-        print(f'{i+1},{a[i]},{b[i]},{error_percentage(a,b)}%')
+        print(f'{i+1},{a[i]},{b[i]},{error_percentage(a[i],b[i])}%')
 
 def error_percentage(a,b):
     '''
@@ -55,14 +55,14 @@ if __name__ == '__main__':
     t=0
     #Find t for perihelion of hoth
     t=orbit.hoth_perhelion_t()
-    t2=5000
+    t2=7000
 
 
     initialArea=orbit.area_swiped_during_period(50,2)
     print_table(initialArea,orbit.area_swiped_during_period(t,2),['Planet #','Area at t=0',f'Area at t={t}','Error'],'Area swiped in period 2 days')
     print_table(initialArea,orbit.area_swiped_during_period(t2,2),['Planet #','Area at t=0',f'Area at t={t2}','Error'],'Area swiped in period 2 days')
-    print(f'Distance travled at aphelion during 2 days is {orbit.distance_traveled_during_period(0,2)[0]}')
-    print(f'Distance travled at perhelion during 2 days is {orbit.distance_traveled_during_period(t,2)[0]}')
+    print(f'Distance travled at aphelion during 2 days is {orbit.distance_traveled_during_period(0,2)[0]} AU')
+    print(f'Distance travled at perhelion during 2 days is {orbit.distance_traveled_during_period(t,2)[0]} AU')
     print(f'Planet Hoth mean velocity is {orbit.mean_velocity()[0]:g} km/s')
 
     aphelium = orbit.simulated_aphelion()[:,0]
