@@ -188,6 +188,7 @@ class orbit_sim:
         rotational_orbit_in_years = 2*np.pi*np.sqrt(self.axes**3/mu)      # Rotational orbit in years
         print(f'Orbit in years {rotational_orbit_in_years}')
         T = 45*rotational_orbit_in_years[0]                            # Total time of N rotations
+        self.T = T
         self.dt = rotational_orbit_in_years[0]/self.timesteps_pr_orbit # Find dt based on timesteps pr year
         planet_pos = self.system.initial_positions                  # Initial planets positions
         planet_vel = self.system.initial_velocities                 # Initial planets velocities
@@ -306,6 +307,10 @@ class orbit_sim:
             R = R + m[i] * r[i]
 
         self.R = R/M
+
+    def verify_planet_positions(self):
+        planet_positions = np.moveaxis(np.array(self.r_numerical),[0,1,2],[1,2,0])
+        self.system.verify_planet_positions(self.T,planet_positions)
 
 
 if __name__ == '__main__':
