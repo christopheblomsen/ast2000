@@ -33,11 +33,12 @@ class orbit_sim:
         self.e = self.system.eccentricities      # All the eccentricities for formulas
         self.G = 4*np.pi**2                      # AU**3 yr**-2 SolarMass**-1
         self.M = self.system.star_mass           # Star mass in solar mass
+        self.m = self.system.masses[5]           # Home planet mass
 
         self.r_numerical = []                    # List with the results of the numerical solution
         self.r_analytical = []                   # List with the results of the analytical solution
 
-        self.mu = self.G*self.M                  # Standard gravitational parameter
+        self.mu = self.G*(self.M + self.m)       # Standard gravitational parameter
 
 
     def leapfrog(self, r0, v0, T, dt):
@@ -112,23 +113,34 @@ class orbit_sim:
 
         N = len(self.system.masses)                                 # Length for for loop
 
+        orbital_period = 2*np.pi*np.sqrt(self.axes[5]**3/mu)      # One year
+        T = 20*orbital_period                                       # 20 years
+        # dt = orbital_period/10000                           # Timestep for 1 year
+        dt = 0.01
+
         planet_pos = self.system.initial_positions                  # Initial planets positions
         planet_vel = self.system.initial_velocities                 # Initial planets velocities
+        verification_r = np.zeros((2, N, int(T/dt)), float)
+        #verification_t = []
         for i in range(N):
-            print(f'Working on planet {i}')
-            orbital_period = 2*np.pi*np.sqrt(self.axes[i]**3/mu)      # One year
-            T = 20*orbital_period                               # 20 years
-            dt = orbital_period/10000                           # Timestep for 1 year
-
-            m = self.system.masses[i]                       # Gets i'th planet mass
+            print(f'Working on planet {i+1}')
 
             r0 = planet_pos[:, i]                              # Gets i'th planet starting pos
 
             v0 = planet_vel[:, i]                              # --||--                    velocity
             r, v, a, t = self.leapfrog(r0, v0, T, dt)    # runs leapfrog and returns
+            #print(np.shape(r))
+            #print(np.shape(verification_r))
+            verification_r[0, i, :] = r[:, 0]
+            verification_r[1, i, :] = r[:, 1]
             self.analytical_solution()                      # analytical
             self.r_numerical.append(r)
 
+        #verification_t = np.asarray(verification_t)
+        #print(np.shape(verification_t[1, :]))
+        verification_t = t.reshape(-1)
+        print(np.shape(verification_t))
+        return verification_r, verification_t, self.system
 
     def cartesian_polar(self, r):
         '''
@@ -167,7 +179,7 @@ class orbit_sim:
 
         for i in range(len(self.axes)):
             x, y = self.polar_cartesian(r(self.axes[i], self.e[i], theta), theta)
-            self.r_analytical.append([x,y])
+            self.r_analytical.append([x, y])
 
     def plot(self):
         for r in self.r_numerical:
@@ -177,17 +189,36 @@ class orbit_sim:
         for a in self.r_analytical:
             plt.plot(a[0],a[1])
 
-        plt.xlabel('x')
-        plt.ylabel('y')
+        plt.xlabel('x[AU]')
+        plt.ylabel('y[AU]')
         plt.title('Hoth system')
 
         plt.show()
 
-    def solar_orbit(self):
+    def solar_orbit(self, planet):
         '''
         Comment
         '''
-        pass
+        star_initial_pos = np.array([0, 0])
+        star_initial_vel = np.array([0, 0])
+        M = self.M
+        m = self.system.masses[planet]
+
+        orbital_period = 2*np.pi*np.sqrt(self.axes[planet]**3/mu)      # One year
+        dt = orbital_period/100000
+
+        masses = np.array([m, M])
+
+        N = len(m)
+
+    def center_mass(self, m, r):
+        M = np.sum(m)
+        R = np.array([0, 0])
+
+        for i in range(len(r)):
+            R = R + m[i] * r[i]
+
+        self.R = R/M
 
 
 if __name__ == '__main__':
@@ -201,10 +232,10 @@ if __name__ == '__main__':
             open(filename, 'wb').write(r.content)
         except:
             print('You need to install requests to download file: pip install requests')
-            
+
     if (os.path.exists(filename) == False or args.run_sim==True):
         orbit = orbit_sim()
-        orbit.sim()
+        r, T, system = orbit.sim()
 
         with open(filename, "wb") as output:
             pickle.dump(orbit, output, pickle.HIGHEST_PROTOCOL)
@@ -213,3 +244,5 @@ if __name__ == '__main__':
             orbit = pickle.load(input)
 
 orbit.plot()
+#system.verify_planet_positions(T, r, 'verification_of_planets')
+system.generate_orbit_video(T, r)
