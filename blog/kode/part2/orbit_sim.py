@@ -244,5 +244,5 @@ if __name__ == '__main__':
             orbit = pickle.load(input)
 
 orbit.plot()
-#system.verify_planet_positions(T, r, 'verification_of_planets')
+system.verify_planet_positions(T, r, 'verification_of_planets')
 system.generate_orbit_video(T, r)
