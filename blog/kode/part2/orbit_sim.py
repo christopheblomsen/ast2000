@@ -5,11 +5,9 @@ from ast2000tools.solar_system import SolarSystem
 import ast2000tools.constants as c
 import os
 import sys
-try:
-    import cPickle as pickle
-except:
-    import pickle
+
 import argparse
+import load_orbit_sim as los
 
 
 parser = argparse.ArgumentParser()
@@ -31,14 +29,16 @@ class orbit_sim:
         self.system = SolarSystem(seed)          # Our famous system
         self.axes = self.system.semi_major_axes  # All the semi major axes for formulas
         self.e = self.system.eccentricities      # All the eccentricities for formulas
-        self.G = 4*np.pi**2                      # AU**3 yr**-2 SolarMass**-1
+        self.G = c.G_sol                      # AU**3 yr**-2 SolarMass**-1
         self.M = self.system.star_mass           # Star mass in solar mass
         self.m = self.system.masses[5]           # Home planet mass
 
-        self.r_numerical = []                    # List with the results of the numerical solution
+        self.r_numerical = []                    # List with the results of r from the numerical solution
+        self.v_numerical = []                    # List with the results of v from the numerical solution
         self.r_analytical = []                   # List with the results of the analytical solution
 
-        self.mu = self.G*(self.M + self.m)       # Standard gravitational parameter
+        self.mu = self.G*(self.M+self.system.masses)     # Standard gravitational parameter
+        self.timesteps_pr_orbit=10000            # Number of timesteps pr orbital period to calculate
 
 
     def leapfrog(self, r0, v0, T, dt):
@@ -47,6 +47,7 @@ class orbit_sim:
         '''
         G = self.G                               # For less writing
         N = int(T/dt)                            # Length of all our vectors
+        print(f'{N} = {T}/{dt}')
         t = np.zeros(N, float)                   # time array
         M = self.M                               # Star mass
         r = np.zeros((N, 2), float)              # Position vector
@@ -101,6 +102,77 @@ class orbit_sim:
 
         return r, v, a, t
 
+    def r(self,t):
+        '''
+        Returns the distance r for all planets at timestep t from the simulation
+        '''
+        r_vec = np.array(self.r_numerical)[:,t]
+        return np.sqrt(r_vec[:,0]**2+r_vec[:,1]**2)
+
+    def v(self,t):
+        '''
+        Returns the velocity for all planets at timestep t from the simulation
+        '''
+        v_vec = np.array(self.v_numerical)[:,t]
+        return np.sqrt(v_vec[:,0]**2+v_vec[:,1]**2)
+
+    def simulated_aphelion(self):
+        '''
+        Finds maximum distance from star for all planets
+        '''
+        r_vec = np.array(self.r_numerical)
+        r = np.sqrt(r_vec[:,:,0]**2+r_vec[:,:,1]**2)
+        return r[:,np.argmax(r,axis=1)]
+
+
+    def mean_velocity(self):
+        '''
+        Returns the mean velocity of the planets
+        '''
+        v_vec = np.array(self.v_numerical)
+        # Calculate velocity at all times
+        velocities = np.sqrt(v_vec[:,:,0]**2+v_vec[:,:,1]**2)
+        # Return the mean velocity for each planet
+        return np.mean(velocities,axis=1)
+
+    def dArea(self,t):
+        '''
+        Calulate the area swept out at timestep t and over time self.dt
+        '''
+        return 0.5*self.r(t)[0]*(self.v(t)*self.dt)
+
+    def area_swiped_during_period(self,t,days):
+        '''
+        Calculate area swiped during a number of days.
+        '''
+        dtPrDay = self.timesteps_pr_orbit/(self.hoth_period()*c.yr/c.day)
+        n = int(dtPrDay*days)
+        totalArea = 0
+        for i in range(n):
+            totalArea += self.dArea(t+i)
+
+        return totalArea
+
+    def distance_traveled_during_period(self,t,days):
+        '''
+        Numerically calculate the distance traveled during # of days
+        '''
+        dtPrDay = self.timesteps_pr_orbit/(self.hoth_period()*c.yr/c.day)
+        n = int(dtPrDay*days)
+        totalDistance = 0
+        for i in range(n):
+            totalDistance += self.v(t)*self.dt
+
+        return totalDistance
+
+    def hoth_period(self):
+        '''
+        The rotational periode of our planet in years
+        '''
+        return 2*np.pi*np.sqrt(self.axes[0]**3/self.mu[0])
+    def hoth_perhelion_t(self):
+        return int(self.hoth_period()/self.dt/2)
+
     def sim(self):
         '''
         Simulating all the orbits
@@ -113,34 +185,27 @@ class orbit_sim:
 
         N = len(self.system.masses)                                 # Length for for loop
 
-        orbital_period = 2*np.pi*np.sqrt(self.axes[5]**3/mu)      # One year
-        T = 20*orbital_period                                       # 20 years
-        # dt = orbital_period/10000                           # Timestep for 1 year
-        dt = 0.01
-
+        rotational_orbit_in_years = 2*np.pi*np.sqrt(self.axes**3/mu)      # Rotational orbit in years
+        print(f'Orbit in years {rotational_orbit_in_years}')
+        T = 45*rotational_orbit_in_years[0]                            # Total time of N rotations
+        self.T = T
+        self.dt = rotational_orbit_in_years[0]/self.timesteps_pr_orbit # Find dt based on timesteps pr year
         planet_pos = self.system.initial_positions                  # Initial planets positions
         planet_vel = self.system.initial_velocities                 # Initial planets velocities
-        verification_r = np.zeros((2, N, int(T/dt)), float)
+        verification_r = np.zeros((2, N, int(T/self.dt)), float)
         #verification_t = []
         for i in range(N):
             print(f'Working on planet {i+1}')
+            print(f'Orbit in years {2*np.pi*np.sqrt(self.axes[i]**3/mu[i])}')
+            m = self.system.masses[i]                                   # Gets i'th planet mass
 
             r0 = planet_pos[:, i]                              # Gets i'th planet starting pos
 
             v0 = planet_vel[:, i]                              # --||--                    velocity
-            r, v, a, t = self.leapfrog(r0, v0, T, dt)    # runs leapfrog and returns
-            #print(np.shape(r))
-            #print(np.shape(verification_r))
-            verification_r[0, i, :] = r[:, 0]
-            verification_r[1, i, :] = r[:, 1]
-            self.analytical_solution()                      # analytical
+            r, v, a, t = self.leapfrog(r0, v0, T, self.dt)    # runs leapfrog and returns
             self.r_numerical.append(r)
-
-        #verification_t = np.asarray(verification_t)
-        #print(np.shape(verification_t[1, :]))
-        verification_t = t.reshape(-1)
-        print(np.shape(verification_t))
-        return verification_r, verification_t, self.system
+            self.v_numerical.append(v)
+        self.analytical_solution()                      # analytical
 
     def cartesian_polar(self, r):
         '''
@@ -182,15 +247,38 @@ class orbit_sim:
             self.r_analytical.append([x, y])
 
     def plot(self):
+        i = 0
+        print(np.array(self.r_numerical).shape)
         for r in self.r_numerical:
-            plt.plot(r[:, 0], r[:, 1])
+            plt.plot(r[:, 0], r[:, 1],label=f'Planet {i+1} s')
             plt.axis('equal')
+            i += 1
 
+        i = 0
+        print(np.array(self.r_analytical).shape)
+        print(len(self.axes))
         for a in self.r_analytical:
-            plt.plot(a[0],a[1])
+            plt.plot(a[0],a[1],label=f'Planet {i+1} a')
+            i += 1
 
-        plt.xlabel('x[AU]')
-        plt.ylabel('y[AU]')
+        plt.xlabel('x in AU')
+        plt.ylabel('y in AU')
+        plt.legend(loc='lower right')
+        plt.title('Hoth system')
+
+        plt.show()
+
+    def plot_planet(self,i):
+        r = self.r_numerical[i]
+        plt.plot(r[:, 0], r[:, 1],label=f'Planet {i} s')
+        plt.axis('equal')
+        a = self.r_analytical[i]
+        plt.plot(a[0],a[1],label=f'Planet {i} a')
+        i += 1
+
+        plt.xlabel('x in AU')
+        plt.ylabel('y in AU')
+        plt.legend(loc='lower right')
         plt.title('Hoth system')
 
         plt.show()
@@ -220,29 +308,14 @@ class orbit_sim:
 
         self.R = R/M
 
+    def verify_planet_positions(self):
+        planet_positions = np.moveaxis(np.array(self.r_numerical),[0,1,2],[1,2,0])
+        self.system.verify_planet_positions(self.T,planet_positions,'planet_trajectories.npz')
+        self.system.generate_system_snapshot('system_snapshot.xml')
+
 
 if __name__ == '__main__':
     filename = "simulated_orbits.pkl"
-    url = 'https://www.uio.no/studier/emner/matnat/astro/AST2000/h20/blogger/Flukten%20fra%20Hoth/data/simulated_orbits.pkl'
-    if (os.path.exists(filename) == False or args.download==True):
-        try:
-            import requests
-            r = requests.get(url, allow_redirects=True)
+    orbit = los.orbit_sim_factory(filename,args)
 
-            open(filename, 'wb').write(r.content)
-        except:
-            print('You need to install requests to download file: pip install requests')
-
-    if (os.path.exists(filename) == False or args.run_sim==True):
-        orbit = orbit_sim()
-        r, T, system = orbit.sim()
-
-        with open(filename, "wb") as output:
-            pickle.dump(orbit, output, pickle.HIGHEST_PROTOCOL)
-    else:
-        with open(filename, 'rb') as input:
-            orbit = pickle.load(input)
-
-orbit.plot()
-system.verify_planet_positions(T, r, 'verification_of_planets')
-system.generate_orbit_video(T, r)
+    orbit.plot()
