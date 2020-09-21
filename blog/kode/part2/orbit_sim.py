@@ -274,6 +274,40 @@ class orbit_sim:
 
         plt.show()
 
+    def least_squares(self, v0, v_end, v_r, P0, P_end, P, t0, t_end):
+        '''
+        Least squares method for finding the
+        most likely candidate
+        '''
+        v = np.linspace(v0, v_end, 1000)
+        P = np.linspace(P0, P_end, 1000)
+        t = np.linspace(t0, t_end, 1000)
+
+        def f(v, P, t):
+            return (v - v_r*np.cos(2*np.pi/P)*(t - t0))
+
+        delta_min = f(v0, P0, t0)
+
+        P_min = 0
+        V_min = 0
+        t_min = 0
+
+        for i in range(len(v)):
+            for j in range(len(P)):
+                for k in range(len(t)):
+                    delta = f(v[i], P[j], t[k])
+                    if delta < delta_min:
+                        delta_min = delta
+                        if t[k] < t_min:
+                            t_min = t[k]
+                        if P[j] < P_min:
+                            P_min = P[j]
+                        if v[i] < V_min:
+                            V_min = v[i]
+
+        return delta_min, P_min, V_min, t_min
+
+
 
 
 if __name__ == '__main__':
