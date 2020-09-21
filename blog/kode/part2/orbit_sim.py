@@ -34,6 +34,7 @@ class orbit_sim:
         self.G = 4*np.pi**2                      # AU**3 yr**-2 SolarMass**-1
         self.M = self.system.star_mass           # Star mass in solar mass
         self.m = self.system.masses[5]           # Home planet mass
+        self.omega = self.system.aphelion_angles # Aphelion angles
 
         self.r_numerical = []                    # List with the results of the numerical solution
         self.r_analytical = []                   # List with the results of the analytical solution
@@ -248,15 +249,15 @@ class orbit_sim:
     def analytical_solution(self):
         theta = np.linspace(0, 2*np.pi, 1000)   # array from 0 to 2pi
 
-        def r(axes, e, theta):
+        def r(axes, e, theta, omega):
             '''
             Analytical formula
             '''
-            ans = (axes*(1 - e**2))/(1 + e*np.cos(theta))
+            ans = (axes*(1 - e**2))/(1 + e*np.cos(theta - omega))
             return ans
 
         for i in range(len(self.axes)):
-            x, y = self.polar_cartesian(r(self.axes[i], self.e[i], theta), theta)
+            x, y = self.polar_cartesian(r(self.axes[i], self.e[i], theta, self.omega[i]), theta)
             self.r_analytical.append([x, y])
 
     def plot(self):
