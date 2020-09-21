@@ -311,6 +311,7 @@ class orbit_sim:
     def verify_planet_positions(self):
         planet_positions = np.moveaxis(np.array(self.r_numerical),[0,1,2],[1,2,0])
         self.system.verify_planet_positions(self.T,planet_positions,'planet_trajectories.npz')
+        self.system.generate_system_snapshot('system_snapshot.xml')
 
 
 if __name__ == '__main__':
