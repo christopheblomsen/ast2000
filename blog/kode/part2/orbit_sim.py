@@ -32,6 +32,7 @@ class orbit_sim:
         self.G = c.G_sol                      # AU**3 yr**-2 SolarMass**-1
         self.M = self.system.star_mass           # Star mass in solar mass
         self.m = self.system.masses[5]           # Home planet mass
+        self.omega = self.system.aphelion_angles # Aphelion angles
 
         self.r_numerical = []                    # List with the results of r from the numerical solution
         self.v_numerical = []                    # List with the results of v from the numerical solution
@@ -207,6 +208,84 @@ class orbit_sim:
             self.v_numerical.append(v)
         self.analytical_solution()                      # analytical
 
+    def solar_orbit(self, planet):
+        '''
+        Comment
+        '''
+        star_initial_pos = np.array([0, 0])
+        star_initial_vel = np.array([0, 0])
+
+        planet_pos = self.system.initial_positions[:, planet]
+        planet_vel = self.system.initial_velocities[:, planet]
+
+        M = self.M
+        m = self.system.masses[planet]
+        mu = self.G*(M + self.system.masses[planet])
+
+        orbital_period = 2*np.pi*np.sqrt(self.axes[planet]**3/mu)      # One year
+        dt = orbital_period/100000
+
+        masses = np.array([m, M])
+        N = len(m)
+
+        r = planet_pos - star_initial_pos
+
+        center_of_mass_R = self.center_mass(masses, r)
+
+    def sim_solar_orbit(self, r0, v0, dt):
+        '''
+        Simulating solar orbit
+        '''
+        G = self.G                               # For less writing
+        N = int(T/dt)                            # Length of all our vectors
+        t = np.zeros(N, float)                   # time array
+        M = self.M                               # Star mass
+
+        r_planet = np.zeros((N, 2), float)       # Position vector
+        v_planet = np.zeros((N, 2), float)       # Velocity vector
+        a_planet = np.zeros((N, 2), float)       # Acceleration vector
+
+        r_sol = np.zeros((N, 2), float)          # Position vector
+        v_sol = np.zeros((N, 2), float)          # Velocity vector
+        a_sol = np.zeros((N, 2), float)          # Acceleration vector
+
+        distance = np.zeros(N, float)            # Distance array
+
+        distance[0] = np.linalg.norm(r0)         # Sets initial conditions
+        r_planet[0, :] = r0
+        v_planet[0, :] = v0
+        t[0] = 0
+
+        a_planet[0, :] = -G*M/(distance[0]**3) * r[0, :]
+
+        r_sol[0, :] = r0
+        v_sol[0, :] = v0
+        a_sol[0, :] = -G*M/(distance[0]**3) * r[0, :]
+        for i in range(N-1):
+            '''
+            The actual leapfrog algorithm
+            '''
+            r[i + 1, :] = r[i, :] + v[i, :]*dt + 0.5*a[i, :]*dt**2
+            distance[i + 1] = np.linalg.norm(r[i + 1, :])
+
+            a[i + 1, :] = -G*M/(distance[i + 1]**3) * r[i + 1, :]
+            v[i + 1, :] = v[i, :] + 0.5*(a[i, :] + a[i + 1, :])*dt
+            t[i + 1] = t[i] + dt
+
+        return r, v, a, t
+
+
+    def center_mass(self, m, r):
+        M = np.sum(m)
+        R = np.array([0, 0])
+
+        for i in range(len(r)):
+            R = R + m[i] * r[i]
+
+        self.R = R/M
+
+        return self.R
+
     def cartesian_polar(self, r):
         '''
         Converts to polar coordinates
@@ -235,15 +314,15 @@ class orbit_sim:
     def analytical_solution(self):
         theta = np.linspace(0, 2*np.pi, 1000)   # array from 0 to 2pi
 
-        def r(axes, e, theta):
+        def r(axes, e, theta, omega):
             '''
             Analytical formula
             '''
-            ans = (axes*(1 - e**2))/(1 + e*np.cos(theta))
+            ans = (axes*(1 - e**2))/(1 + e*np.cos(theta - omega))
             return ans
 
         for i in range(len(self.axes)):
-            x, y = self.polar_cartesian(r(self.axes[i], self.e[i], theta), theta)
+            x, y = self.polar_cartesian(r(self.axes[i], self.e[i], theta, self.omega[i]), theta)
             self.r_analytical.append([x, y])
 
     def plot(self):
@@ -283,30 +362,40 @@ class orbit_sim:
 
         plt.show()
 
-    def solar_orbit(self, planet):
+    def least_squares(self, v0, v_end, v_r, P0, P_end, P, t0, t_end):
         '''
-        Comment
+        Least squares method for finding the
+        most likely candidate
         '''
-        star_initial_pos = np.array([0, 0])
-        star_initial_vel = np.array([0, 0])
-        M = self.M
-        m = self.system.masses[planet]
+        v = np.linspace(v0, v_end, 1000)
+        P = np.linspace(P0, P_end, 1000)
+        t = np.linspace(t0, t_end, 1000)
 
-        orbital_period = 2*np.pi*np.sqrt(self.axes[planet]**3/mu)      # One year
-        dt = orbital_period/100000
+        def f(v, P, t):
+            return (v - v_r*np.cos(2*np.pi/P)*(t - t0))
 
-        masses = np.array([m, M])
+        delta_min = f(v0, P0, t0)
 
-        N = len(m)
+        P_min = 0
+        V_min = 0
+        t_min = 0
 
-    def center_mass(self, m, r):
-        M = np.sum(m)
-        R = np.array([0, 0])
+        for i in range(len(v)):
+            for j in range(len(P)):
+                for k in range(len(t)):
+                    delta = f(v[i], P[j], t[k])
+                    if delta < delta_min:
+                        delta_min = delta
+                        if t[k] < t_min:
+                            t_min = t[k]
+                        if P[j] < P_min:
+                            P_min = P[j]
+                        if v[i] < V_min:
+                            V_min = v[i]
 
-        for i in range(len(r)):
-            R = R + m[i] * r[i]
+        return delta_min, P_min, V_min, t_min
 
-        self.R = R/M
+
 
     def verify_planet_positions(self):
         planet_positions = np.moveaxis(np.array(self.r_numerical),[0,1,2],[1,2,0])
