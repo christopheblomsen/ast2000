@@ -5,6 +5,7 @@ from ast2000tools.solar_system import SolarSystem
 import ast2000tools.constants as c
 import os
 import sys
+import math
 
 import argparse
 import load_orbit_sim as los
@@ -210,7 +211,7 @@ class orbit_sim:
 
     def solar_orbit(self, planet):
         '''
-        Comment
+        Simulate planet and star orbiting a common center of mass
         '''
         star_initial_pos = np.array([0, 0])
         star_initial_vel = np.array([0, 0])
@@ -220,19 +221,74 @@ class orbit_sim:
 
         M = self.M
         m = self.system.masses[planet]
-        mu = self.G*(M + self.system.masses[planet])
+        mu = (M * m)/(M + m)
 
         orbital_period = 2*np.pi*np.sqrt(self.axes[planet]**3/mu)      # One year
         dt = orbital_period/100000
 
         masses = np.array([m, M])
-        N = len(m)
 
-        r = planet_pos - star_initial_pos
+        r = np.array([planet_pos,star_initial_pos])
 
         center_of_mass_R = self.center_mass(masses, r)
 
-    def sim_solar_orbit(self, r0, v0, dt):
+        # Chaneg reference to center of mass
+        r1cm, r2cm = self.to_center_mass_positions(r[0]-r[1],masses[0],masses[1])
+        r1,r2,t = self.leapfrog2([r1cm,r2cm],[planet_vel,[0,0]],m,M,10,0.0001)
+
+        plt.plot(r1[:,0],r1[:,1])
+        plt.axis('equal')
+        plt.plot(r2[:,0],r2[:,1])
+        plt.axis('equal')
+        plt.plot(0,0,"or")
+        plt.show()
+
+    def leapfrog2(self, r0, v0, m1, m2, T, dt):
+        '''
+        Leapfrog integration for 2 body orbit
+        '''
+        G = self.G                               # For less writing
+        N = int(T/dt)                            # Length of all our vectors
+        t = np.zeros(N, float)                   # time array
+        M = self.M                               # Star mass
+        r1 = np.zeros((N, 2), float)              # Position vector
+        r2 = np.zeros((N, 2), float)              # Position vector
+        v1 = np.zeros((N, 2), float)              # Velocity vector
+        v2 = np.zeros((N, 2), float)              # Velocity vector
+        a1 = np.zeros((N, 2), float)              # Acceleration vector
+        a2 = np.zeros((N, 2), float)              # Acceleration vector
+        mu = (m1*m2)/(m1+m2)
+
+        r = np.zeros((N,2),float)
+        r[0] = r0[0]+r0[1]
+        ar = math.sqrt(r0[0][0]**2+r0[0][1]**2)+math.sqrt(r0[1][0]**2+r0[1][1]**2)
+
+        r1[0, :] = np.array(r0[0])
+        r2[0, :] = np.array(r0[1])
+        v1[0, :] = np.array(v0[0])
+        v2[0, :] = np.array(v0[1])
+        t[0] = 0
+
+        a1[0, :] = -G*m2/(ar**2) * r[0]
+        a2[0, :] = G*m1/(ar**2) * r[0]
+        for i in range(N-1):
+            '''
+            The actual leapfrog algorithm
+            '''
+            r1[i + 1, :] = r1[i, :] + v1[i, :]*dt + 0.5*a1[i, :]*dt**2
+            r2[i + 1, :] = r2[i, :] + v2[i, :]*dt + 0.5*a2[i, :]*dt**2
+            r[i + 1] = r1[i+1,:]+r2[i+1,:]
+
+            a1[i + 1, :] = -G*m2/(ar**2) * r[i + 1]
+            a2[i + 1, :] = G*m1/(ar**2) * r[i + 1]
+            v1[i + 1, :] = v1[i, :] + 0.5*(a1[i, :] + a1[i + 1, :])*dt
+            v2[i + 1, :] = v2[i, :] + 0.5*(a2[i, :] + a2[i + 1, :])*dt
+            t[i + 1] = t[i] + dt
+
+        return r1, r2, t
+
+
+    def sim_solar_orbit(self, r0, v0, T, dt):
         '''
         Simulating solar orbit
         '''
@@ -276,15 +332,35 @@ class orbit_sim:
 
 
     def center_mass(self, m, r):
+        if(len(m) != len(r)):
+            raise Exception("different number of bodies and positions")
+
         M = np.sum(m)
-        R = np.array([0, 0])
+        bodies = len(m)
+        dimensions = r.shape[1]
+        print(f'Calculating CM for {bodies} bodies in {dimensions} D')
+        R = np.zeros(dimensions)
 
-        for i in range(len(r)):
-            R = R + m[i] * r[i]
+        for i in range(bodies):
+            R += m[i]*r[i]
 
-        self.R = R/M
+        R = R/M
 
-        return self.R
+        return R
+
+    def to_center_mass_positions(self,r,m1,m2):
+        '''
+        Move bodies to center of mass coordinate system
+        r = distance vector between bodies
+        m1 = mass of body 1
+        m2 = mass of body 2
+
+        Returns positions of the two bodies relative to the center of mass
+        '''
+        mu = (m1*m2)/(m1+m2)
+        r1cm = r*mu/m1
+        r2cm = -r*mu/m2
+        return r1cm, r2cm
 
     def cartesian_polar(self, r):
         '''
@@ -406,5 +482,17 @@ class orbit_sim:
 if __name__ == '__main__':
     filename = "simulated_orbits.pkl"
     orbit = los.orbit_sim_factory(filename,args)
+    planet = 5
+    m = np.array([orbit.system.masses[planet],orbit.system.star_mass])
+    r = np.array([orbit.system.initial_positions[:,planet],np.array([0,0])])
+    print(f'Masses {m}')
+    print(f'Positions {r}')
+    R = orbit.center_mass(m,r)
+    r1cm, r2cm = orbit.to_center_mass_positions(r[0]-r[1],m[0],m[1])
+    print(f'CM positions {orbit.to_center_mass_positions(r[0]-r[1],m[0],m[1])}')
+    plt.plot(r1cm[0],r1cm[1],"ob")
+    plt.plot(r2cm[0],r2cm[1],"oy")
+    plt.plot(0,0,".r")
+    plt.show()
 
-    orbit.plot()
+    orbit.solar_orbit(planet)
