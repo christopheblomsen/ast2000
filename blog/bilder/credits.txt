@@ -6,10 +6,10 @@ Gaussisk fordeling-png Gaussisk fordeling Wolfram Alpha LLC. 2020. Wolfram|Alpha
 
 Moment.png (Jan Magne Andersen)
 
-<<<<<<< HEAD
+cartesian coordinates (https://en.wikipedia.org/wiki/Cartesian_coordinate_system#/media/File:Cartesian-coordinate-system.svg)
+
 midpoint https://en.wikipedia.org/wiki/Midpoint_method#/media/File:Midpoint_method_illustration.png
-=======
+
 hoth. (https://www.starwars.com/databank/hoth)
 
 roundabout (https://www.yatesplaygrounds.co.uk/products/playground-roundabouts)
->>>>>>> ff0dd1a0544347b9d7cf7fc31ec655fcd31740c2
