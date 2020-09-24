@@ -9,6 +9,7 @@ import math
 
 import argparse
 import load_orbit_sim as los
+import pintegrator as pint
 
 
 parser = argparse.ArgumentParser()
@@ -209,6 +210,23 @@ class orbit_sim:
             self.v_numerical.append(v)
         self.analytical_solution()                      # analytical
 
+    def E(self,m1,m2,v1,v2,r):
+        '''
+        Calculates the energy of the system with masses, velocities and distance
+        '''
+        return (m1/2)*v1**2+(m2/2)*v2**2-self.G*m1*m2/r
+    def r(self,r1,r2):
+        '''
+        Returns the distance between to position vectors
+        '''
+        return np.sqrt(np.sum(self.r_vec(r1,r2)**2))
+
+    def r_vec(self,r1,r2):
+        '''
+        Returns the r vector as r2 - r1
+        '''
+        return r2 - r1
+
     def solar_orbit(self, planet):
         '''
         Simulate planet and star orbiting a common center of mass
@@ -232,13 +250,38 @@ class orbit_sim:
 
         center_of_mass_R = self.center_mass(masses, r)
 
-        # Chaneg reference to center of mass
-        r1cm, r2cm = self.to_center_mass_positions(r[0]-r[1],masses[0],masses[1])
-        r1,r2,t = self.leapfrog2([r1cm,r2cm],[planet_vel,[0,0]],m,M,10,0.0001)
+        # Change reference to center of mass
+        r1cm, r2cm = self.to_center_mass_positions(self.r_vec(r[1],r[0]),masses[0],masses[1])
 
-        plt.plot(r1[:,0],r1[:,1])
+        # Calculate the initial Energy of the system
+        E0 = self.E(m,M,planet_vel,star_initial_vel,self.r(r1cm,r2cm))
+        print(f'm = {m} and M = {M}')
+        print(f'Initial positions r1 = {r1cm} r2 = {r2cm}')
+        print(f'Initial velocities v1 = {planet_vel} v2 = {star_initial_vel}')
+        print(f'System initial Energy {E0}')
+        def f(r,t):
+            #print(f'r0 {r[0]} r1 {r[1]}')
+            ar = self.r(r[0],r[1])
+            #print(f'ar {ar}')
+            rv = self.r_vec(r[1],r[0])
+            a1 = -rv*self.G*M/ar**3
+            a2 = rv*self.G*m/ar**3
+            #print(f'a1 {a1} a2 {a2} ')
+            return np.array([a1,a2])
+
+        leapfrog = pint.LeapFrog(f)
+        r, t, v = leapfrog.integrate(np.array([r1cm,r2cm]),np.array([planet_vel,star_initial_vel]),12,0.001)
+
+        E1 = self.E(m,M,v[0],v[1],self.r(r[-1,0],r[-1,1]))
+        print(f'System finale energy {E1}')
+        #for i in range(len(r)):
+        #    print(f'{t[i]:.1f}: {r[i,0]}, {r[i,1]}')
+        #r1,r2,t = self.leapfrog2([r1cm,r2cm],[planet_vel,[0,0]],m,M,10,0.0001)
+
+        print(r.shape)
+        plt.plot(r[:,0,0],r[:,0,1],'r')
         plt.axis('equal')
-        plt.plot(r2[:,0],r2[:,1])
+        plt.plot(r[:,1,0],r[:,1,1],'g')
         plt.axis('equal')
         plt.plot(0,0,"or")
         plt.show()
@@ -490,9 +533,9 @@ if __name__ == '__main__':
     R = orbit.center_mass(m,r)
     r1cm, r2cm = orbit.to_center_mass_positions(r[0]-r[1],m[0],m[1])
     print(f'CM positions {orbit.to_center_mass_positions(r[0]-r[1],m[0],m[1])}')
-    plt.plot(r1cm[0],r1cm[1],"ob")
-    plt.plot(r2cm[0],r2cm[1],"oy")
-    plt.plot(0,0,".r")
-    plt.show()
+    #plt.plot(r1cm[0],r1cm[1],"ob")
+    #plt.plot(r2cm[0],r2cm[1],"oy")
+    #plt.plot(0,0,".r")
+    #plt.show()
 
     orbit.solar_orbit(planet)
