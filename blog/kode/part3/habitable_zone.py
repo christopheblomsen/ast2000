@@ -1,0 +1,103 @@
+# Egen kode
+import numpy as np
+import ast2000.contstant as c
+from ast2000tools.solar_system import SolarSystem
+import orbit_sim as os
+import scipy.integrate as integrate
+
+
+class habitable_zone:
+    def __init__(self, seed=33382):
+        self.system = SolarSystem(seed)
+        self.radii = self.system.radii
+        self.star_T = self.system.star_temperature
+        self.star_R = self.system.star_radius*1000
+        self.planet_pos = self.system.initial_positions
+
+    def flux_boltz(self, T):
+        '''
+        Find the flux using boltzmann
+        '''
+        F = c.sigma*T**4
+        return F
+
+    def luminosity(self):
+        '''
+        Finds the luminosity
+        '''
+        T = self.star_T
+        R = self.star_R
+        self.L = 4*np.pi*R**2 * self.flux_boltz(T)
+
+    def flux_radii(self, r):
+        '''
+        Find flux from radii
+        '''
+        F = self.L/(4*np.pi*r**2)
+        return F
+
+    def wattage_area(self, r, W=40):
+        '''
+        Caculates the Area, needed to achieve a certain watt
+        '''
+        efficiency = 0.12
+        actual_W = W/efficiency
+
+        R = self.star_R
+        T = self.star_T
+
+        A = actual_W * (r**2)/(R**2*c.sigma*T**4)
+        return A
+
+    def energy_at_planet(self, planet):
+        '''
+        At planets initial position
+        '''
+        r = self.radii[planet]
+        R = self.star_R
+        T = self.star_T
+        rd = self.planet_pos[:, planet]
+
+        top = (2*np.pi*r**2*c.sigma*R**2*T**4)
+
+        def dE(r):
+            ans = top/r**2
+            return ans
+        E = dE(rd)  # Bit unsure of the integration
+
+        return E
+
+    def temp_at_planet(self, planet):
+        '''
+        At planets initial position
+        '''
+        rd = self.planet_pos[:, planet]
+        R = self.star_R
+        T = self.star_T
+
+        Tp = np.sqrt(R/rd)*T
+
+        return Tp
+
+    def temp_at_sim(self, planet):
+        '''
+        Simulated temperature all year round
+        '''
+        orbit = os()
+        R = self.star_R
+
+        mu = c.G_sol*(self.M * self.system.masses[planet])
+
+        rotational_orbit_in_years = 2*np.pi*np.sqrt(self.axes**3/mu)
+        T = 45*rotational_orbit_in_years[planet]
+
+        dt = rotational_orbit_in_years[planet]/1000
+
+        r0 = self.planet_pos[:, planet]
+        v0 = self.system.initial_velocities[:, planet]
+
+        r, v, a, t = orbit.leapfrog(r0, v0, T, dt)
+
+        temp_sim = np.sqrt(R/r)*self.star_T
+
+        return temp_sim
