@@ -9,6 +9,7 @@ from ast2000tools.solar_system import SolarSystem
 import matplotlib.pyplot as plt
 import sys
 import os
+import tools
 try:
     import cPickle as pickle
 except:
@@ -31,14 +32,16 @@ as arguments to the constructor
 
 Call launch_process to actually launch the rocket.
 
+- launch_pos is angle on planet surface from 0 to 2 pi
 '''
 class rocket_launch:
     # A class for calculating the launch of our rocket
-    def __init__(self, mission, initial_mass, engine):
+    def __init__(self, mission, initial_mass, engine, launch_pos):
         self.mission = mission
         self.initial_mass = initial_mass
         self.system = SolarSystem(33382)
         self.engine = engine
+        self.launch_pos = launch_pos
         # Number of time steps to try
         self.N = 50000
 
@@ -60,10 +63,10 @@ class rocket_launch:
         # The rotational period of our planet in seconds
         self.rp_sec = self.system.rotational_periods[0]*86400
 
-        # Planet Rotational velocity in m/s
-        self.vpr = np.array([0,2*np.pi*self.r/self.rp_sec])
+        # Calculate planet rotational vector at launch position
+        self.vpr = np.array([0,2*np.pi*self.r/self.rp_sec]) # Planet rotational velocity
 
-        # Set initial rotational velocity
+        # Set initial rocket velocity
         self.vel[0] = self.vpr
 
         # Planet Orbital Velocity
@@ -93,6 +96,8 @@ class rocket_launch:
         str = str + f"      Planet orbital angle | {self.system._initial_orbital_angles[0]} r\n"
         str = str + f"          Fuel consumption | {self.fuel_consumption:.2f} kg/s\n"
         str = str + f"                    Thrust | {self.thrust[1]/1000:.2f} kN\n"
+        str = str + f"   Cartesian launch coord. | {self.get_launch_pos()} AU\n"
+        str = str + f"       Polar launch coord. | {tools.cartesian_polar(self.get_launch_pos())} AU, radians\n"
         return str
 
     '''
@@ -146,17 +151,26 @@ class rocket_launch:
         '''
         Returns the rocket position relative to the star after launch
         '''
+        # Add planet orbital movement to launch position
         planet_pos = launch_pos + (self.vpo_ms/c.AU)*self.i*self.dt
 
-        return planet_pos + self.pos[self.i]/c.AU
+        # Rotate escape position
+        escape_pos = np.array(tools.cartesian_polar(self.pos[self.i]))
+        escape_pos[1] += self.launch_pos
 
-    def launch_pos(self,t,r):
+        # Add escape position vector to planet position vector
+        rotated_escape_pos_x, rotated_escape_pos_y  = tools.polar_cartesian(escape_pos[0],escape_pos[1])
+        final_pos = planet_pos + np.array([rotated_escape_pos_x,rotated_escape_pos_y])/c.AU
+
+        return final_pos
+
+    def get_launch_pos(self):
         '''
-        Calculate initial launch position relative to star based in time t in years, and angle r on planet surface
+        Calculate initial launch position relative to star
         '''
-        pos = np.array(mission.system.initial_positions[:,0])     # Initial position at t = 0
-        pos[0] += (mission.system.radii[0]*1000)/c.AU   # Add planet radius to position
-        return pos
+        pos = np.array(self.mission.system.initial_positions[:,0])                  # Initial planet center position
+        rocket_pos = tools.polar_cartesian(self.r/c.AU,self.launch_pos)   # Initial rocket position relative to planet center
+        return pos + rocket_pos
 
 def rocket_engine_factory(filename, number_of_motors, args):
     '''
@@ -201,7 +215,7 @@ if __name__ == '__main__':
     print(f"Fuel mass {fuel_mass} kg")
 
     # Construct the launch object
-    launch = rocket_launch(mission,mission.spacecraft_mass+fuel_mass,engine)
+    launch = rocket_launch(mission,mission.spacecraft_mass+fuel_mass,engine,2)
 
     # Prints details of the rocket
     print(launch)
@@ -209,13 +223,12 @@ if __name__ == '__main__':
     # Launch the rocket
     launch.launch_process(0.01)
 
-    launch_pos = launch.launch_pos(0,0)
+    launch_pos = launch.get_launch_pos()
     escape_pos = launch.final_position(launch_pos)
     print(f"Start coordinates {launch_pos} AU")
     print(f"  End coordinates {escape_pos} AU")
-
+    '''
     fig, ax1 = plt.subplots()
-
 
     # Plot Trajectory
     plt.ylabel('km')
@@ -229,8 +242,8 @@ if __name__ == '__main__':
     plt.xlabel('s')
     plt.plot(np.linspace(0,launch.time,launch.i),np.linalg.norm(launch.vel[:launch.i],axis=1)/100,'r',label='Velocity')
     plt.legend()
-    plt.show()
-
+    #plt.show()
+    '''
     # Launch the rocket using AST2000tools
     mission.set_launch_parameters(engine.thrust(),engine.fuel_consumption(),fuel_mass,max_launch_time,launch_pos,0)
 
