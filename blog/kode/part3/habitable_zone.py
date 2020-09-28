@@ -1,18 +1,22 @@
 # Egen kode
 import numpy as np
-import ast2000.contstant as c
+import ast2000tools.constants as c
 from ast2000tools.solar_system import SolarSystem
-import orbit_sim as os
-import scipy.integrate as integrate
+import orbit_sim
 
 
 class habitable_zone:
+    '''
+    A class for finding info
+    about planets in the
+    habitable zone
+    '''
     def __init__(self, seed=33382):
-        self.system = SolarSystem(seed)
-        self.radii = self.system.radii
-        self.star_T = self.system.star_temperature
-        self.star_R = self.system.star_radius*1000
-        self.planet_pos = self.system.initial_positions
+        self.system = SolarSystem(seed)                         # Our system
+        self.radii = self.system.radii                          # All the radii in the system
+        self.star_T = self.system.star_temperature              # Temprature of the star in Kelvin
+        self.star_R = self.system.star_radius*1000              # Star radius in meters
+        self.planet_pos = self.system.initial_positions*c.AU    # Planet positions in meters
 
     def flux_boltz(self, T):
         '''
@@ -40,13 +44,12 @@ class habitable_zone:
         '''
         Caculates the Area, needed to achieve a certain watt
         '''
-        efficiency = 0.12
-        actual_W = W/efficiency
+        efficiency = 0.12                               # efficiency of the panels
 
         R = self.star_R
         T = self.star_T
 
-        A = actual_W * (r**2)/(R**2*c.sigma*T**4)
+        A = (W * r**2)/(R**2*c.sigma*T**4*efficiency)   # Area needed
         return A
 
     def energy_at_planet(self, planet):
@@ -58,9 +61,12 @@ class habitable_zone:
         T = self.star_T
         rd = self.planet_pos[:, planet]
 
-        top = (2*np.pi*r**2*c.sigma*R**2*T**4)
+        top = (2*np.pi*r**2*c.sigma*R**2*T**4)          # Numerator
 
         def dE(r):
+            '''
+            function for the dE
+            '''
             ans = top/r**2
             return ans
         E = dE(rd)  # Bit unsure of the integration
@@ -72,10 +78,11 @@ class habitable_zone:
         At planets initial position
         '''
         rd = self.planet_pos[:, planet]
-        R = self.star_R
-        T = self.star_T
+        rd_norm = np.linalg.norm(rd)        # Distance to planet
+        R = self.star_R                     # km
+        T = self.star_T                     # K
 
-        Tp = np.sqrt(R/rd)*T
+        Tp = np.sqrt(R/rd_norm)*T           # Temp at planet in K
 
         return Tp
 
@@ -83,7 +90,7 @@ class habitable_zone:
         '''
         Simulated temperature all year round
         '''
-        orbit = os()
+        orbit = orbit_sim()                 # Not callable for some reason
         R = self.star_R
 
         mu = c.G_sol*(self.M * self.system.masses[planet])
@@ -101,3 +108,46 @@ class habitable_zone:
         temp_sim = np.sqrt(R/r)*self.star_T
 
         return temp_sim
+
+    def temp_at_all_planets(self):
+        '''
+        Table of all planets temp at initial positions
+        '''
+        N = len(self.radii)
+        R = self.star_R                     # km
+        T = self.star_T                     # K
+
+        for i in range(N):
+            '''
+            Prints out table of tempratures
+            '''
+            rd = self.planet_pos[:, i]
+            rd_norm = np.linalg.norm(rd)
+
+            Tp = np.sqrt(R/rd_norm)*T
+
+            print(f'Planet {i+1} has temprature {Tp:.2f} K at t=0')
+            if 260 <= Tp and Tp <= 390:
+                '''
+                Checks if current planet is withing
+                habitable zone
+                '''
+                print(f'Planet {i+1} is in the habitable zone at t=0')
+                print(f'Distance {rd_norm}')
+
+    def solar_panels(self, planet, W=40):
+        '''
+        Calculate the size the solar panels
+        needs to be in order to give enough
+        wattage at the planets position
+        '''
+        r = self.planet_pos[:, planet]      # Pos of planet in m
+        r_norm = np.linalg.norm(r)
+        A = self.wattage_area(r_norm, W)    # Area in m**2
+        return A
+
+
+if __name__ == '__main__':
+    find_home = habitable_zone()
+    find_home.temp_at_all_planets()
+    print(find_home.solar_panels(6))
