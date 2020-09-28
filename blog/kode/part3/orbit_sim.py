@@ -7,14 +7,7 @@ import os
 import sys
 import math
 
-import argparse
 import load_orbit_sim as los
-
-
-parser = argparse.ArgumentParser()
-parser.add_argument('-rs','--run-sim',action='store_true', help='Runs the simulation of orbits from scratch and saves the result')
-parser.add_argument('-d','--download',action='store_true', help='Downloads pickle file')
-args = parser.parse_args()
 
 class orbit_sim:
     '''
@@ -172,7 +165,7 @@ class orbit_sim:
         The rotational periode of our planet in years
         '''
         return 2*np.pi*np.sqrt(self.axes[0]**3/self.mu[0])
-        
+
     def hoth_perhelion_t(self):
         return int(self.hoth_period()/self.dt/2)
 
@@ -328,6 +321,13 @@ class orbit_sim:
 
 
 if __name__ == '__main__':
+    import argparse
+    
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-rs','--run-sim',action='store_true', help='Runs the simulation of orbits from scratch and saves the result')
+    parser.add_argument('-d','--download',action='store_true', help='Downloads pickle file')
+    args = parser.parse_args()
+
     filename = "simulated_orbits.pkl"
     orbit = los.orbit_sim_factory(filename,args)
     planet = 5
