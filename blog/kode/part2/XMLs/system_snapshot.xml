@@ -149,14 +149,14 @@
           </SerializedMCAstObject>
           <SerializedMCAstObject>
             <pos_x>-0.0034363524726510096</pos_x>
-            <pos_z>-0.0077613319208911895</pos_z>
+            <pos_z>-0.007761331920891188</pos_z>
             <pos_y>-0.0003272782811101629</pos_y>
             <rot_y>-4.295578036329595</rot_y>
             <Frames>
               <Frame>
                 <id>0</id>
                 <pos_x>-0.0034363524726510096</pos_x>
-                <pos_z>-0.0077613319208911895</pos_z>
+                <pos_z>-0.007761331920891188</pos_z>
                 <pos_y>-0.0003272782811101629</pos_y>
                 <rot_y>-4.295578036329595</rot_y>
               </Frame>
@@ -220,16 +220,16 @@
             <name>Moon 4 of Planet 2</name>
           </SerializedMCAstObject>
           <SerializedMCAstObject>
-            <pos_x>0.0009298346612021855</pos_x>
+            <pos_x>0.0009298346612021857</pos_x>
             <pos_z>0.011540803254580867</pos_z>
-            <pos_y>8.855747251100096e-05</pos_y>
+            <pos_y>8.855747251100097e-05</pos_y>
             <rot_y>-1.4904006680183908</rot_y>
             <Frames>
               <Frame>
                 <id>0</id>
-                <pos_x>0.0009298346612021855</pos_x>
+                <pos_x>0.0009298346612021857</pos_x>
                 <pos_z>0.011540803254580867</pos_z>
-                <pos_y>8.855747251100096e-05</pos_y>
+                <pos_y>8.855747251100097e-05</pos_y>
                 <rot_y>-1.4904006680183908</rot_y>
               </Frame>
             </Frames>
@@ -244,16 +244,16 @@
             <name>Moon 5 of Planet 2</name>
           </SerializedMCAstObject>
           <SerializedMCAstObject>
-            <pos_x>-0.0028399286282206585</pos_x>
+            <pos_x>-0.0028399286282206593</pos_x>
             <pos_z>-0.008190058183382854</pos_z>
-            <pos_y>-0.0002704748617369185</pos_y>
+            <pos_y>-0.0002704748617369186</pos_y>
             <rot_y>-4.378609584072378</rot_y>
             <Frames>
               <Frame>
                 <id>0</id>
-                <pos_x>-0.0028399286282206585</pos_x>
+                <pos_x>-0.0028399286282206593</pos_x>
                 <pos_z>-0.008190058183382854</pos_z>
-                <pos_y>-0.0002704748617369185</pos_y>
+                <pos_y>-0.0002704748617369186</pos_y>
                 <rot_y>-4.378609584072378</rot_y>
               </Frame>
             </Frames>
@@ -269,14 +269,14 @@
           </SerializedMCAstObject>
           <SerializedMCAstObject>
             <pos_x>-0.007865765374062491</pos_x>
-            <pos_z>0.00737658980733486</pos_z>
+            <pos_z>0.0073765898073348615</pos_z>
             <pos_y>-0.0007491356581512268</pos_y>
             <rot_y>-2.3882766532787016</rot_y>
             <Frames>
               <Frame>
                 <id>0</id>
                 <pos_x>-0.007865765374062491</pos_x>
-                <pos_z>0.00737658980733486</pos_z>
+                <pos_z>0.0073765898073348615</pos_z>
                 <pos_y>-0.0007491356581512268</pos_y>
                 <rot_y>-2.3882766532787016</rot_y>
               </Frame>
@@ -416,16 +416,16 @@
             <name>Moon 1 of Planet 5</name>
           </SerializedMCAstObject>
           <SerializedMCAstObject>
-            <pos_x>0.005897983373682799</pos_x>
+            <pos_x>0.005897983373682801</pos_x>
             <pos_z>-0.009565000243355501</pos_z>
-            <pos_y>0.00033553453190528557</pos_y>
+            <pos_y>0.0003355345319052856</pos_y>
             <rot_y>-5.264940499278765</rot_y>
             <Frames>
               <Frame>
                 <id>0</id>
-                <pos_x>0.005897983373682799</pos_x>
+                <pos_x>0.005897983373682801</pos_x>
                 <pos_z>-0.009565000243355501</pos_z>
-                <pos_y>0.00033553453190528557</pos_y>
+                <pos_y>0.0003355345319052856</pos_y>
                 <rot_y>-5.264940499278765</rot_y>
               </Frame>
             </Frames>
@@ -560,16 +560,16 @@
             <name>Moon 7 of Planet 5</name>
           </SerializedMCAstObject>
           <SerializedMCAstObject>
-            <pos_x>0.0004920991424339578</pos_x>
+            <pos_x>0.0004920991424339579</pos_x>
             <pos_z>-0.002313622517444421</pos_z>
-            <pos_y>2.7995374850381975e-05</pos_y>
+            <pos_y>2.7995374850381982e-05</pos_y>
             <rot_y>-4.921962264611428</rot_y>
             <Frames>
               <Frame>
                 <id>0</id>
-                <pos_x>0.0004920991424339578</pos_x>
+                <pos_x>0.0004920991424339579</pos_x>
                 <pos_z>-0.002313622517444421</pos_z>
-                <pos_y>2.7995374850381975e-05</pos_y>
+                <pos_y>2.7995374850381982e-05</pos_y>
                 <rot_y>-4.921962264611428</rot_y>
               </Frame>
             </Frames>
@@ -585,14 +585,14 @@
           </SerializedMCAstObject>
           <SerializedMCAstObject>
             <pos_x>0.01685547598436787</pos_x>
-            <pos_z>-0.02107412496748323</pos_z>
+            <pos_z>-0.021074124967483225</pos_z>
             <pos_y>0.0009589030497595669</pos_y>
             <rot_y>-5.387019269976725</rot_y>
             <Frames>
               <Frame>
                 <id>0</id>
                 <pos_x>0.01685547598436787</pos_x>
-                <pos_z>-0.02107412496748323</pos_z>
+                <pos_z>-0.021074124967483225</pos_z>
                 <pos_y>0.0009589030497595669</pos_y>
                 <rot_y>-5.387019269976725</rot_y>
               </Frame>
@@ -752,16 +752,16 @@
             <name>Moon 15 of Planet 5</name>
           </SerializedMCAstObject>
           <SerializedMCAstObject>
-            <pos_x>-0.024649259345054488</pos_x>
+            <pos_x>-0.024649259345054485</pos_x>
             <pos_z>0.047126969482039684</pos_z>
-            <pos_y>-0.001402289082919285</pos_y>
+            <pos_y>-0.0014022890829192849</pos_y>
             <rot_y>-2.0527050747052678</rot_y>
             <Frames>
               <Frame>
                 <id>0</id>
-                <pos_x>-0.024649259345054488</pos_x>
+                <pos_x>-0.024649259345054485</pos_x>
                 <pos_z>0.047126969482039684</pos_z>
-                <pos_y>-0.001402289082919285</pos_y>
+                <pos_y>-0.0014022890829192849</pos_y>
                 <rot_y>-2.0527050747052678</rot_y>
               </Frame>
             </Frames>
@@ -776,16 +776,16 @@
             <name>Moon 16 of Planet 5</name>
           </SerializedMCAstObject>
           <SerializedMCAstObject>
-            <pos_x>0.009597840867358716</pos_x>
+            <pos_x>0.009597840867358714</pos_x>
             <pos_z>-0.027926856424228264</pos_z>
-            <pos_y>0.0005460183318081737</pos_y>
+            <pos_y>0.0005460183318081736</pos_y>
             <rot_y>-5.043420494830047</rot_y>
             <Frames>
               <Frame>
                 <id>0</id>
-                <pos_x>0.009597840867358716</pos_x>
+                <pos_x>0.009597840867358714</pos_x>
                 <pos_z>-0.027926856424228264</pos_z>
-                <pos_y>0.0005460183318081737</pos_y>
+                <pos_y>0.0005460183318081736</pos_y>
                 <rot_y>-5.043420494830047</rot_y>
               </Frame>
             </Frames>
@@ -872,16 +872,16 @@
             <name>Moon 20 of Planet 5</name>
           </SerializedMCAstObject>
           <SerializedMCAstObject>
-            <pos_x>0.02886264584341515</pos_x>
+            <pos_x>0.028862645843415153</pos_x>
             <pos_z>-0.02700545186409351</pos_z>
-            <pos_y>0.0016419873962057693</pos_y>
+            <pos_y>0.0016419873962057695</pos_y>
             <rot_y>-5.531017384361453</rot_y>
             <Frames>
               <Frame>
                 <id>0</id>
-                <pos_x>0.02886264584341515</pos_x>
+                <pos_x>0.028862645843415153</pos_x>
                 <pos_z>-0.02700545186409351</pos_z>
-                <pos_y>0.0016419873962057693</pos_y>
+                <pos_y>0.0016419873962057695</pos_y>
                 <rot_y>-5.531017384361453</rot_y>
               </Frame>
             </Frames>
