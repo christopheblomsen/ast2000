@@ -124,6 +124,8 @@ class habitable_zone:
             rd = self.planet_pos[:, i]
             rd_norm = np.linalg.norm(rd)
 
+            print(f'Distance to planet is {rd_norm/c.AU:g}')
+
             Tp = np.sqrt(R/rd_norm)*T
 
             print(f'Planet {i+1} has temprature {Tp:.2f} K at t=0')
@@ -133,7 +135,7 @@ class habitable_zone:
                 habitable zone
                 '''
                 print(f'Planet {i+1} is in the habitable zone at t=0')
-                print(f'Distance {rd_norm}')
+                #print(f'Distance {rd_norm/c.AU}')
 
     def solar_panels(self, planet, W=40):
         '''
