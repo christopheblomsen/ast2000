@@ -17,6 +17,19 @@ class habitable_zone:
         self.star_T = self.system.star_temperature              # Temprature of the star in Kelvin
         self.star_R = self.system.star_radius*1000              # Star radius in meters
         self.planet_pos = self.system.initial_positions*c.AU    # Planet positions in meters
+        self.sorting()
+
+    def sorting(self):
+        N = len(self.radii)
+        s = []
+        for i in range(N):
+            rd = np.linalg.norm(self.planet_pos[:, i])
+            s.append((rd, i))
+        s.sort()
+        self.planet_sorted = np.zeros((2, N), float)
+        for i in range(N):
+            j = s[i][1]
+            self.planet_sorted[:, i] = self.planet_pos[:, j]
 
     def sorting(self):
         N = len(self.radii)
@@ -136,6 +149,8 @@ class habitable_zone:
             rd = self.planet_sorted[:, i]
             rd_norm = np.linalg.norm(rd)
 
+            print(f'Distance to planet is {rd_norm/c.AU:g}')
+
             Tp = np.sqrt(R/rd_norm)*T
 
             print(f'Planet {i+1} has temprature {Tp:.2f} K at t=0')
@@ -163,3 +178,4 @@ if __name__ == '__main__':
     find_home = habitable_zone()
     find_home.temp_at_all_planets()
     print(f'Solar panel area needed {find_home.solar_panels(6):g}')
+    print(find_home.solar_panels(6))
