@@ -18,6 +18,18 @@ class habitable_zone:
         self.star_R = self.system.star_radius*1000              # Star radius in meters
         self.planet_pos = self.system.initial_positions*c.AU    # Planet positions in meters
 
+    def sorting(self):
+        N = len(self.radii)
+        s = []
+        for i in range(N):
+            rd = np.linalg.norm(self.planet_pos[:, i])
+            s.append((rd, i))
+        s.sort()
+        self.planet_sorted = np.zeros((2, N), float)
+        for i in range(N):
+            j = s[i][1]
+            self.planet_sorted[:, i] = self.planet_pos[:, j]
+
     def flux_boltz(self, T):
         '''
         Find the flux using boltzmann
@@ -59,7 +71,7 @@ class habitable_zone:
         r = self.radii[planet]
         R = self.star_R
         T = self.star_T
-        rd = self.planet_pos[:, planet]
+        rd = self.planet_sorted[:, planet]
 
         top = (2*np.pi*r**2*c.sigma*R**2*T**4)          # Numerator
 
@@ -77,7 +89,7 @@ class habitable_zone:
         '''
         At planets initial position
         '''
-        rd = self.planet_pos[:, planet]
+        rd = self.planet_sorted[:, planet]
         rd_norm = np.linalg.norm(rd)        # Distance to planet
         R = self.star_R                     # km
         T = self.star_T                     # K
@@ -100,7 +112,7 @@ class habitable_zone:
 
         dt = rotational_orbit_in_years[planet]/1000
 
-        r0 = self.planet_pos[:, planet]
+        r0 = self.planet_sorted[:, planet]
         v0 = self.system.initial_velocities[:, planet]
 
         r, v, a, t = orbit.leapfrog(r0, v0, T, dt)
@@ -121,7 +133,7 @@ class habitable_zone:
             '''
             Prints out table of tempratures
             '''
-            rd = self.planet_pos[:, i]
+            rd = self.planet_sorted[:, i]
             rd_norm = np.linalg.norm(rd)
 
             Tp = np.sqrt(R/rd_norm)*T
@@ -133,7 +145,7 @@ class habitable_zone:
                 habitable zone
                 '''
                 print(f'Planet {i+1} is in the habitable zone at t=0')
-                print(f'Distance {rd_norm}')
+                print(f'Distance at t=0 is {rd_norm/c.AU:g} AU')
 
     def solar_panels(self, planet, W=40):
         '''
@@ -141,7 +153,7 @@ class habitable_zone:
         needs to be in order to give enough
         wattage at the planets position
         '''
-        r = self.planet_pos[:, planet]      # Pos of planet in m
+        r = self.planet_sorted[:, planet]      # Pos of planet in m
         r_norm = np.linalg.norm(r)
         A = self.wattage_area(r_norm, W)    # Area in m**2
         return A
@@ -150,4 +162,4 @@ class habitable_zone:
 if __name__ == '__main__':
     find_home = habitable_zone()
     find_home.temp_at_all_planets()
-    print(find_home.solar_panels(6))
+    print(f'Solar panel area needed {find_home.solar_panels(6):g}')
