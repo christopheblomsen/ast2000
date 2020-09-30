@@ -480,6 +480,7 @@ class orbit_sim:
 
 
 if __name__ == '__main__':
+    """
     filename = "simulated_orbits.pkl"
     orbit = los.orbit_sim_factory(filename,args)
     planet = 5
@@ -496,3 +497,7 @@ if __name__ == '__main__':
     plt.show()
 
     orbit.solar_orbit(planet)
+    """
+    orbit = orbit_sim()
+    orbit.sim()
+    orbit.plot()
