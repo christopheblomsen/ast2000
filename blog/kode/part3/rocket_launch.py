@@ -243,6 +243,17 @@ class rocket_launch:
 
     def load_planet_trajectories(self):
         trajectories_filename = "planet_trajectories.npz"
+
+        url = 'https://www.uio.no/studier/emner/matnat/astro/AST2000/h20/blogger/Flukten%20fra%20Hoth/data/planet_trajectories.npz'
+        if (os.path.exists(trajectories_filename) == False):
+            try:
+                import requests
+                r = requests.get(url, allow_redirects=True)
+
+                open(trajectories_filename, 'wb').write(r.content)
+            except:
+                print('You need to install requests to download file: pip install requests')
+
         # Load the saved planet trajectories
         trajectories = np.load(trajectories_filename,allow_pickle=True)
         self.times = trajectories[0]
@@ -434,38 +445,40 @@ if __name__ == '__main__':
 '''
 Example running the code:
 
-python rocket_launch.py --run-steps true
-true
-Fuel mass 41000 kg
+janmagneandersen$ python rocket_launch.py
 Launch parameters:
                       Name | Value
 =========================================
-               Planet mass | 7311200101015753339174912.00 kg
-             Planet radius | 6622.42 km
+               Launch time | 0 year
+              Launch angle | 0 radians
+               Planet mass | 7.3112e+24 kg
+             Planet radius | 6622416.98 m
+  Planet rotational period | 1.03 days
   Planet rotational period | 89145.88 s
+      Planet circumference | 41609873.06 m
+Planet rotational velocity | 466.76 m/s
     Planet escape velocity | 12.14 km/s
-Planet rotational velocity | 0.47 km/s
-   Planet orbital velocity | [ 0.         41.82738054] km/s
+   Planet orbital velocity | [    0.         41827.38053534] m/s
+   Planet orbital velocity | [    0.         41827.38053534] 41827.380535339675 m/s
+     Planet aphelion angle | 0.0 r
+      Planet orbital angle | 0.0 r
           Fuel consumption | 126.49 kg/s
                     Thrust | 542.27 kN
+                 Fuel mass | 41000 kg
+   Cartesian launch coord. | [0.36585653 0.        ] AU
+       Polar launch coord. | (0.36585653049782685, 0.0) AU, radians
 
 Escape velocity of Hoth is 12.139587606214251 km/s
 Achieved escape velocity 12.14 km/s
-Our position is 677361.3055238673 meters relative to launch site and it took 324.08 seconds
-It took 40993.03 kg of fuel
-Final velocity is 12.143855 km/s
-Start coordinates [0.36585653049782685, 0.0] AU
-  End coordinates [0.36586105837848687, 2.8271887793580364e-16] AU
+Our position is [681045.82616829 151240.09705026] relative to launch site and it took 324.02 seconds
+It took 40985.44 kg of fuel
+Final velocity is 12.141830 km/s
+Start coordinates [0.36585653 0.        ] AU
+  End coordinates [3.65861083e-01 9.16069833e-05] AU
 Rocket was moved down by 3.29129e-06 m to stand on planet surface.
 New launch parameters set.
 Launch completed, reached escape velocity in 322.83 s.
-Your spacecraft position deviates too much from the correct position.
-The deviation is approximately 9.12702e-05 AU.
-Make sure you have included the rotation and orbital velocity of your home planet.
-Note that units are AU and relative the the reference system of the star.
-Traceback (most recent call last):
-  File "rocket_launch.py", line 190, in <module>
-    mission.verify_launch_result(escape_pos)
-  File "build/bdist.linux-x86_64/egg/ast2000tools/space_mission.py", line 348, in verify_launch_result
-RuntimeError: Incorrect spacecraft position after launch.
+Your spacecraft position was satisfyingly calculated. Well done!
+*** Achievement unlocked: No free launch! ***
+SpaceMission instance saved as part1.bin.
 '''
