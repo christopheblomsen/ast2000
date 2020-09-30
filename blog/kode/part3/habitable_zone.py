@@ -26,19 +26,6 @@ class habitable_zone:
             rd = np.linalg.norm(self.planet_pos[:, i])
             s.append((rd, i))
         s.sort()
-        self.planet_sorted = np.zeros((2, N), float)
-        for i in range(N):
-            j = s[i][1]
-            self.planet_sorted[:, i] = self.planet_pos[:, j]
-
-    def sorting(self):
-        N = len(self.radii)
-        s = []
-        for i in range(N):
-            rd = np.linalg.norm(self.planet_pos[:, i])
-            s.append((rd, i))
-        self.pre_s = s
-        s.sort()
         self.s = s
         self.planet_sorted = np.zeros((2, N), float)
         for i in range(N):
@@ -241,5 +228,5 @@ class habitable_zone:
 if __name__ == '__main__':
     find_home = habitable_zone()
     find_home.print_habitable_planet()
-    #find_home.temp_at_all_planets()
+    find_home.temp_at_all_planets()
     #find_home.info_normal_solar_system()
