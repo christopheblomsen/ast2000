@@ -6,8 +6,12 @@ import ast2000tools.constants as c
 import os
 import sys
 import math
+<<<<<<< Updated upstream
 
 import argparse
+=======
+import tools
+>>>>>>> Stashed changes
 import load_orbit_sim as los
 
 
@@ -388,18 +392,56 @@ class orbit_sim:
         return x, y
 
     def analytical_solution(self):
-        theta = np.linspace(0, 2*np.pi, 1000)   # array from 0 to 2pi
+        theta = np.linspace(0, 2*np.pi, 5000)   # array from 0 to 2pi
 
         def r(axes, e, theta, omega):
             '''
             Analytical formula
             '''
-            ans = (axes*(1 - e**2))/(1 + e*np.cos(theta - omega))
+            ans = (axes*(1 - e**2))/(1 - e*np.cos(theta - omega))
             return ans
 
         for i in range(len(self.axes)):
             x, y = self.polar_cartesian(r(self.axes[i], self.e[i], theta, self.omega[i]), theta)
             self.r_analytical.append([x, y])
+
+    def hoth_analytical_solution(self, t):
+
+        a = self.system.semi_major_axes[0]
+        e = self.system.eccentricities[0]
+        omega = self.system.aphelion_angles[0]
+
+        #print(f'Hoth analytical dt {dt} t {t}')
+        def r(theta):
+            '''
+            Formula for ellipse
+            '''
+
+            ans = (a*(1 - e**2))/(1 - e*np.cos(theta - omega))
+            #print(f'{ans} = ({a}*(1 - {e}**2))/(1 + {e}*np.cos({theta} - {omega}))')
+            return ans
+
+        ##theta = 2*np.pi
+        v = np.linalg.norm(self.system.initial_velocities[:,0])
+        #print(f'Initial velocity ')
+
+        if t == 0:
+            x, y = tools.polar_cartesian(r(t),theta)
+            return x,y,v # self.system.initial_positions[0,0],self.system.initial_positions[1,0],v
+        #print(f'range {np.arange(0,t,dt)}')
+        dTheta = 2*np.pi/50000
+        time = 0
+        for theta in np.linspace(0,2*np.pi,50000):
+            rr = r(theta)
+            v = rr*dTheta
+            dt = ds / v
+
+            #print(f'ds {ds} r {r} dTheta {dTheta}')
+            if(time >= t):
+                break
+        print(f'Polar cordinates at time {t} is {rr,theta}')
+        x, y = tools.polar_cartesian(rr, theta)
+        return x, y, v
 
     def plot(self):
         i = 0
@@ -481,6 +523,16 @@ class orbit_sim:
         planet_positions = planet_positions[:, :, 0:10000]
         self.system.generate_orbit_video(self.orbit_video_T, planet_positions)
 
+<<<<<<< Updated upstream
+=======
+if __name__ == '__main__':
+    import argparse
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-rs','--run-sim',action='store_true', help='Runs the simulation of orbits from scratch and saves the result')
+    parser.add_argument('-d','--download',action='store_true', help='Downloads pickle file')
+    args = parser.parse_args()
+>>>>>>> Stashed changes
 
 if __name__ == '__main__':
     """
