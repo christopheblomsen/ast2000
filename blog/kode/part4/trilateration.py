@@ -37,31 +37,51 @@ class trilateration:
             self.r_numerical.append(r)
             self.v_numerical.append(v)
 
-    def comparrison(self, vec1, vec2):
+    def comparrison(self, vec1, vec2, tol=1):
         '''
         Comparing 2 vectors
         '''
         for i in range(len(vec1)):
-            if vec1[i, 0] == vec2[i, 0] and vec1[i, 1] == vec2[i, 1]:
-                correct = i
+            tolerance_x = abs(vec1[i, 0] - vec2[i, 0])
+            tolerance_y = abs(vec1[i, 1] - vec2[i, 1])
+            if tolerance_x < tol and tolerance_y < tol:
+                correct = vec1[i, :]
 
         return correct
 
-    def two(self, radii):
+    def circles(self, radii, a, b):
         '''
-        r1, r2, r3 are the distances measured by the radar
-        U is the distance between the star and the planet
+        calculating the x and y values around
+        planets given from a radii from the radar
+        a, and b are the planet positions in that
+        timestep
         '''
-        # x = (r1**2 - r2**2 + U**2)/(2*U)
-        # y = (r1**2 - r3**2 + V**2 - 2*V[0]*x)/(2*V[1])
         theta = np.linspace(0, 2*np.pi, 1000)
         N = len(radii)
         vec = np.zeros((N, 2), float)
 
         for i in range(N):
-            vec[i, 0] = radii[i]*np.sin(theta)
-            vec[i, 1] = radii[i]*np.cos(theta)
+            '''
+            x and y for itself is just to remove the
+            E501 warning for PEP8
+            '''
+            x = (a[i]**2 + b[i]**2 + 2*b[i]*radii[i]*np.sin(theta))/(2*a[i])
+            y = (2*a[i]*radii[i]*np.cos(theta) - a[i]**2 - b[i]**2)/(2*b[i])
+            vec[i, 0] = x
+            vec[i, 1] = y
+        self.vec = vec
+
+    def same_coordinates(self):
+        '''
+        Checks if the coordinates are correct
+        '''
+        self.circles()
         correct = []
 
-        for i in range(len(vec)+1):
-            correct.append(float(self.comparrison(vec[i], vec[i+1])
+        for i in range(len(self.vec)+1):
+            '''
+            Finds the correct x and y coordinates
+            '''
+            correct.append(float(self.comparrison(self.vec[i], self.vec[i+1])))
+
+        return correct
