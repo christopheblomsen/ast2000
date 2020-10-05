@@ -65,8 +65,18 @@ class trilateration:
             x and y for itself is just to remove the
             E501 warning for PEP8
             '''
-            x = (a[i]**2 + b[i]**2 + 2*b[i]*radii[i]*np.sin(theta))/(2*a[i])
-            y = (2*a[i]*radii[i]*np.cos(theta) - a[i]**2 - b[i]**2)/(2*b[i])
+            if a == b and b == 0:
+                x = radii[i]*np.cos(theta)
+                y = radii[i]*np.sin(theta)
+            elif b == 0:
+                x = radii[i]*np.cos(theta) + a[i]
+                y = radii[i]*np.sin(theta)
+            elif a == 0:
+                x = radii[i]*np.cos(theta)
+                y = radii[i]*np.sin(theta) + b[i]
+            else:
+                x = (a[i]**2 + b[i]**2 - 2*b[i]*radii[i]*np.sin(theta))/(2*a[i])
+                y = (a[i]**2 + b[i]**2 - 2*a[i]*radii[i]*np.cos(theta))/(2*b[i])
             vec[i, 0] = x
             vec[i, 1] = y
         self.vec = vec
