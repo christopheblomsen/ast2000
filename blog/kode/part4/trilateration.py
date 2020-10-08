@@ -177,10 +177,14 @@ class trilateration:
         '''
         reference_wavelength = self.mission.reference_wavelength
         #reference_wavelength = 656.3E-9
-        lambda_1, lambda_2 = self.mission.star_doppler_shifts_at_sun
+        lambda_1_sun, lambda_2_sun = self.mission.star_doppler_shifts_at_sun
+        lambda_1_rock, lambda_2_rock = self.mission.measure_star_doppler_shifts()
         phi_1, phi_2 = self.mission.star_direction_angles
 
-        radial_velocity = c.c*(lambda_1 + lambda_2)/reference_wavelength
+        radial_velocity1 = c.c*(lambda_1_sun - lambda_1_rock)/reference_wavelength
+        radial_velocity2 = c.c*(lambda_2_sun - lambda_2_rock)/reference_wavelength
+
+        radial_velocity = np.array([[radial_velocity1], [radial_velocity2]])
         conts = 1/np.sin(phi_2 - phi_1)
         transformation = conts*np.array([[np.sin(phi_2), np.sin(phi_1)],
                                          [np.cos(phi_2), np.cos(phi_1)]])
