@@ -42,7 +42,6 @@ class orbit_sim:
         self.mu = self.G*(self.M+self.system.masses)     # Standard gravitational parameter
         self.timesteps_pr_orbit=10000            # Number of timesteps pr orbital period to calculate
 
-
     def leapfrog(self, r0, v0, T, dt):
         '''
         Leapfrog integration
@@ -191,6 +190,7 @@ class orbit_sim:
         print(f'Orbit in years {rotational_orbit_in_years}')
         T = 45*rotational_orbit_in_years[0]                            # Total time of N rotations
         self.T = T
+        self.orbit_video_T = np.linspace(0, T, self.timesteps_pr_orbit)
         self.dt = rotational_orbit_in_years[0]/self.timesteps_pr_orbit # Find dt based on timesteps pr year
         planet_pos = self.system.initial_positions                  # Initial planets positions
         planet_vel = self.system.initial_velocities                 # Initial planets velocities
@@ -471,15 +471,19 @@ class orbit_sim:
 
         return delta_min, P_min, V_min, t_min
 
-
-
     def verify_planet_positions(self):
         planet_positions = np.moveaxis(np.array(self.r_numerical),[0,1,2],[1,2,0])
         self.system.verify_planet_positions(self.T,planet_positions,'planet_trajectories.npz')
         self.system.generate_system_snapshot('system_snapshot.xml')
 
+    def generate_orbit_video(self):
+        planet_positions = np.moveaxis(np.array(self.r_numerical), [0, 1, 2], [1, 2, 0])
+        planet_positions = planet_positions[:, :, 0:10000]
+        self.system.generate_orbit_video(self.orbit_video_T, planet_positions)
+
 
 if __name__ == '__main__':
+    """
     filename = "simulated_orbits.pkl"
     orbit = los.orbit_sim_factory(filename,args)
     planet = 5
@@ -496,3 +500,8 @@ if __name__ == '__main__':
     plt.show()
 
     orbit.solar_orbit(planet)
+    """
+    orbit = orbit_sim()
+    orbit.sim()
+    orbit.plot()
+    orbit.generate_orbit_video()
