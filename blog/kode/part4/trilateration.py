@@ -7,12 +7,12 @@ import orbit_sim as os
 
 
 class trilateration:
-    def __init__(self, seed=33382, dt=1000):
+    def __init__(self, mission, seed=33382, dt=1000):
         '''
         Something
         '''
         self.system = SolarSystem(seed)
-        self.mission = SpaceMission(seed)
+        self.mission = mission
         self.orbit = os
         self.G = c.G
         self.M = self.system.star_mass
@@ -20,7 +20,6 @@ class trilateration:
         self.dt = dt
         self.axes = self.system.semi_major_axes
         self.times, self.planet_pos = np.load('planet_trajectories.npz', allow_pickle=True)
-        self.mission = self.mission.load('part1.bin', self.mission)
 
         self.r_numerical = []
         self.v_numerical = []
@@ -148,7 +147,10 @@ class trilateration:
         Checks if the coordinates are correct
         '''
         correct = []
-        N = len(a)
+        if(type(a) is np.float64):
+            N = 1
+        else:
+            N = len(a)
         vec = np.zeros((N, 2), float)
         for i in range(N+1):
             '''
@@ -192,7 +194,9 @@ class trilateration:
         rocket_vel = np.dot(transformation, radial_velocity)
         return rocket_vel
 
-
-tri = trilateration()
-vel = tri.radial_velocity()
-print(vel)
+if __name__ == '__main__':
+    mission = SpaceMission.load('part1.bin')
+    tri = trilateration(mission)
+    vel = tri.radial_velocity()
+    print(vel)
+    pos = tri.tri_test()

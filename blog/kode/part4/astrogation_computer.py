@@ -39,13 +39,6 @@ class astrogation_computer:
         Caclulates the x_min/max
         and the y_min/max
         '''
-        '''
-        # TODO: Med input theta=90 og alpha=70 får vi dette resultatet:
-        Field of view is
-        X = [8.89196289673101,-8.89196289673101]
-        Y = [-1.115703478704388,1.115703478704388]
-        Kan det være riktig? Har sjekket at formlene er riktige
-        '''
         self.logger.info(f'Parameters theta={theta}, alpha={alpha}')
         x_numerator = 2*np.sin(alpha/2)
         x_denomerator = 1 + np.cos(alpha/2)
@@ -197,14 +190,16 @@ class astrogation_computer:
         # Set initial diff to infinity
         min_diff = float('inf')
         min_angle = angle
+        print(f'Comparing to angle ', end='')
         for projection in self.projections:
-            print(f'Comparing to angle {angle}')
+
+            print(f'{angle:4d}\b\b\b\b', end = '',flush = True)
             diff = self.mean_square_diff(input,projection)
             if(diff < min_diff):
                 min_diff = diff
                 min_angle = angle
             angle += 1
-
+        print('')
         self.logger.info(f'Found least difference in angle {min_angle}')
 
         return min_angle
@@ -230,7 +225,6 @@ class astrogation_computer:
     def mean_square_diff(self,a, b):
     	err = np.sum((a.astype("float") - b.astype("float")) ** 2)
     	err /= float(a.shape[0] * b.shape[1])
-
 
     	return err
 if __name__ == '__main__':
