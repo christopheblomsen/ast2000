@@ -238,6 +238,8 @@ class trilateration:
                 centroid = [x[neighbours[neighbour]].sum()/3,y[neighbours[neighbour]].sum()/3]
         plt.scatter(candidates[:,0],candidates[:,1],c='r')
         plt.scatter(centroid[0],centroid[1],c='g')
+        plt.xlabel('AU')
+        plt.ylabel('AU')
         plt.legend()
         plt.show()
 
