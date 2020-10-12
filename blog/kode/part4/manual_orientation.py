@@ -17,17 +17,18 @@ ast_comp = astrogation_computer.astrogation_computer()
 
 mission = SpaceMission.load('part1.bin')
 
-#mission.take_picture()
+mission.take_picture()
 
 dopler_shifts = mission.measure_star_doppler_shifts()
 
 print(f'dopler_shifts {dopler_shifts}')
 
-distances = mission.measure_distances()
+distances = np.array(mission.measure_distances())
 
-#print(f'Planet and star distances\n{distances}')
-#angle = ast_comp.find_orientation_angle('sky_picture.png')
-#print(f'Spacecraft is pointing in direction {angle} degrees')
+print(f'Planet and star distances\n{distances}')
+
+angle = ast_comp.find_orientation_angle('sky_picture.png')
+print(f'Spacecraft is pointing in direction {angle} degrees')
 
 trilateration = trilateration.trilateration(mission)
 
@@ -35,6 +36,8 @@ velocity = trilateration.radial_velocity()
 
 print(f'The spacecraft velocity is {velocity}')
 
-position = trilateration.tri_test()
+position = trilateration.tri_test(distances)
 
 print(f'Spacecraft position is {position}')
+
+mission.verify_manual_orientation(position,velocity,angle)
