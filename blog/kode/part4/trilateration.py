@@ -8,7 +8,6 @@ import os as operatingsystem
 import orbit_sim as os
 
 
-
 class trilateration:
     def __init__(self, mission, seed=33382, dt=1000):
         '''
@@ -22,7 +21,8 @@ class trilateration:
         self.mu = self.G*(self.M + self.system.masses[0])
         self.dt = dt
         self.axes = self.system.semi_major_axes
-        self.times, self.planet_pos = np.load('planet_trajectories.npz', allow_pickle=True)
+        self.times, self.planet_pos = np.load('planet_trajectories.npz',
+                                              allow_pickle=True)
 
         self.r_numerical = []
         self.v_numerical = []
@@ -87,33 +87,18 @@ class trilateration:
         Comparing 2 vectors
         '''
         N = vec1.shape[1]
-        mindiff = (tol,tol)
+        mindiff = (tol, tol)
         minindex = 0
         for i in range(N):
             for j in range(N):
-                diff_x = abs(vec1[0,i] - vec2[0,j])
-                diff_y = abs(vec1[1,i] - vec2[1,j])
+                diff_x = abs(vec1[0, i] - vec2[0, j])
+                diff_y = abs(vec1[1, i] - vec2[1, j])
                 if diff_x < tol and diff_y < tol and (mindiff[0] > diff_x and mindiff[1] > diff_y):
-                    mindiff =(diff_x,diff_y)
+                    mindiff = (diff_x, diff_y)
                     minindex = i
 
-        return vec1[:,minindex]
-        #diff = np.abs(vec1[0,:] - vec2[:,1])
-        #closest = diff.argmin()
-        #print(f'Closest index {closest} with value {vec1[:,closest]}')
-        #return vec1[closest]
-        '''
-        correct = []
-        print(f'vec1 size {vec1.shape[1]}')
-        for i in range(vec1.shape[1]):
-            tolerance_x = abs(vec1[0,i] - vec2[0,i])
-            tolerance_y = abs(vec1[1,i] - vec2[1,i])
-            if tolerance_x < tol and tolerance_y < tol:
-                correct.append(vec1[:,i])
+        return vec1[:, minindex]
 
-        print(f'Candidate coordinates {correct}')
-        return np.array(correct)
-        '''
     def circles_old(self, radii, a, b):
         '''
         calculating the x and y values around
@@ -154,7 +139,7 @@ class trilateration:
         '''
         N = len(a)
         theta = np.linspace(0, 2*np.pi, 5000)
-        vec = np.zeros((2,N,5000), float)
+        vec = np.zeros((2, N, 5000), float)
 
         for i in range(N):
             '''
@@ -162,9 +147,9 @@ class trilateration:
             '''
             x = radii[i]*np.cos(theta) + a[i]
             y = radii[i]*np.sin(theta) + b[i]
-            vec[0,i] = x
-            vec[1,i] = y
-            plt.plot(vec[0,i],vec[1,i],label=f'Planet {i}')
+            vec[0, i] = x
+            vec[1, i] = y
+            plt.plot(vec[0, i], vec[1, i], label=f'Planet {i}')
 
         return vec
 
@@ -179,19 +164,19 @@ class trilateration:
         '''
         vec = self.circle(radii, a, b)
         if(operatingsystem.path.exists('candidates.npy')):
-            return np.load('candidates.npy',allow_pickle=True)
+            return np.load('candidates.npy', allow_pickle=True)
 
         print(f'vec.shape {vec.shape}')
         for i in range(N):
             for j in range(N):
                 if j != i:
                     print(f'Comparing {i} and {j}')
-                    correct.append(self.comparrison(vec[:,i], vec[:,j],tol=0.1))
+                    correct.append(self.comparrison(vec[:, i],
+                                                    vec[:, j], tol=0.1))
 
+        return np.array(correct, dtype=object)
 
-        return np.array(correct,dtype=object)
-
-    def find_closest_neighbours(self,x,y,tol):
+    def find_closest_neighbours(self, x, y, tol):
         neighbours = {}
         for i in range(len(x)):
             neighbours[i] = []
@@ -214,30 +199,36 @@ class trilateration:
         # Find the three clostest planets, excluding our mother planet
         closest = np.argsort(distances)[1:4]
         print(f'Shortest distance from us {closest}')
-        positions = np.concatenate((planet_pos[:,:,0],np.zeros((2,1))),axis=1)
+        positions = np.concatenate((planet_pos[:, :, 0],
+                                    np.zeros((2, 1))), axis=1)
+
         print(np.shape(positions))
         print(f'Planet positions: {positions[:,:]}')
-        plt.scatter(positions[0,closest],positions[1,closest],marker='.')
+        plt.scatter(positions[0, closest], positions[1, closest], marker='.')
 
         print(f'Positions {positions[:,closest]}')
 
-        candidates = self.same_coordinates(distances[closest], positions[0,closest],positions[1,closest])
+        candidates = self.same_coordinates(distances[closest],
+                                           positions[0, closest],
+                                           positions[1, closest])
 
-        if(operatingsystem.path.exists('candidates.npy') == False):
-            np.save('candidates.npy',candidates)
+        if(operatingsystem.path.exists('candidates.npy') is False):
+            np.save('candidates.npy', candidates)
 
         print(f'coordinate candidates {candidates.shape} ')
-        x = candidates[:,0]
-        y = candidates[:,1]
-        neighbours = self.find_closest_neighbours(x,y,0.01)
+        x = candidates[:, 0]
+        y = candidates[:, 1]
+        neighbours = self.find_closest_neighbours(x, y, 0.01)
         print(neighbours)
         for neighbour in neighbours:
             if(len(neighbours[neighbour]) == 3):
                 print(f'x: {x[neighbours[neighbour]]}')
                 print(f'y: {y[neighbours[neighbour]]}')
-                centroid = [x[neighbours[neighbour]].sum()/3,y[neighbours[neighbour]].sum()/3]
-        plt.scatter(candidates[:,0],candidates[:,1],c='r')
-        plt.scatter(centroid[0],centroid[1],c='g')
+                centroid = [x[neighbours[neighbour]].sum()/3,
+                            y[neighbours[neighbour]].sum()/3]
+
+        plt.scatter(candidates[:, 0], candidates[:, 1], c='r')
+        plt.scatter(centroid[0], centroid[1], c='g')
         plt.xlabel('AU')
         plt.ylabel('AU')
         plt.legend()
@@ -249,8 +240,7 @@ class trilateration:
         '''
         Calculates radial_velocity from doppler
         '''
-        #reference_wavelength = self.mission.reference_wavelength
-        reference_wavelength = 656.3
+        reference_wavelength = self.mission.reference_wavelength
         lambda_1_sun, lambda_2_sun = self.mission.star_doppler_shifts_at_sun
         lambda_1_rock, lambda_2_rock = self.mission.measure_star_doppler_shifts()
         phi = self.mission.star_direction_angles
@@ -266,16 +256,18 @@ class trilateration:
                                          [-np.cos(phi_2), np.cos(phi_1)]])
 
         rocket_vel = np.dot(transformation, radial_velocity)
-        #rocket_vel_x = conts*(np.sin(phi_2) * radial_velocity1 - np.sin(phi_1) * radial_velocity2)
-        #rocket_vel_y = conts*(-np.cos(phi_1) * radial_velocity1 + np.cos(phi_2) * radial_velocity2)
-        #rocket_vel = np.array([rocket_vel_x, rocket_vel_y])
         rocket_vel_AU_y = rocket_vel
-        print(f'The rocket velocity is {rocket_vel_AU_y}')
         return rocket_vel_AU_y
+
 
 if __name__ == '__main__':
     mission = SpaceMission.load('part1.bin')
     tri = trilateration(mission)
     vel = tri.radial_velocity()
     print(vel)
-    pos = tri.tri_test()
+
+'''
+$ python trilateration.py
+SpaceMission instance loaded from part1.bin.
+[2.43963171 8.92174606]
+'''
