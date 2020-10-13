@@ -260,15 +260,15 @@ class trilateration:
         radial_velocity1 = c.c_AU_pr_yr*(lambda_1_sun - lambda_1_rock)/reference_wavelength
         radial_velocity2 = c.c_AU_pr_yr*(lambda_2_sun - lambda_2_rock)/reference_wavelength
 
-        #radial_velocity = np.array([radial_velocity1, radial_velocity2])
+        radial_velocity = np.array([radial_velocity1, radial_velocity2])
         conts = 1/np.sin(phi_2 - phi_1)
-        #transformation = conts*np.array([[np.sin(phi_2), -np.sin(phi_1)],
-        #                                 [-np.cos(phi_1), np.cos(phi_1)]])
+        transformation = conts*np.array([[np.sin(phi_2), -np.sin(phi_1)],
+                                         [-np.cos(phi_2), np.cos(phi_1)]])
 
-        #rocket_vel = np.dot(transformation, radial_velocity)
-        rocket_vel_x = conts*(np.sin(phi_2) * radial_velocity1 - np.sin(phi_1) * radial_velocity2)
-        rocket_vel_y = conts*(-np.cos(phi_1) * radial_velocity1 + np.cos(phi_2) * radial_velocity2)
-        rocket_vel = np.array([rocket_vel_x, rocket_vel_y])
+        rocket_vel = np.dot(transformation, radial_velocity)
+        #rocket_vel_x = conts*(np.sin(phi_2) * radial_velocity1 - np.sin(phi_1) * radial_velocity2)
+        #rocket_vel_y = conts*(-np.cos(phi_1) * radial_velocity1 + np.cos(phi_2) * radial_velocity2)
+        #rocket_vel = np.array([rocket_vel_x, rocket_vel_y])
         rocket_vel_AU_y = rocket_vel
         print(f'The rocket velocity is {rocket_vel_AU_y}')
         return rocket_vel_AU_y
