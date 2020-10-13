@@ -9,12 +9,7 @@ except:
 
 import os
 import sys
-import argparse
-parser = argparse.ArgumentParser()
-parser.add_argument('--run-steps', help='foo help')
-args = parser.parse_args()
 
-print(args.run_steps)
 
 class rocket_engine:
 
@@ -44,6 +39,13 @@ class rocket_engine:
         self.time_needed = force_needed/self.thrust()
         return self.time_needed * self.fuel_consumption()
 if __name__ == "__main__":
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--run-steps', help='foo help')
+    args = parser.parse_args()
+
+    print(args.run_steps)
+
     dt = 1e-12
     fuel_mass = 2500
     dv = 5
