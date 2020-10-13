@@ -249,23 +249,29 @@ class trilateration:
         '''
         Calculates radial_velocity from doppler
         '''
-        reference_wavelength = self.mission.reference_wavelength
-        #reference_wavelength = 656.3E-9
+        #reference_wavelength = self.mission.reference_wavelength
+        reference_wavelength = 656.3
         lambda_1_sun, lambda_2_sun = self.mission.star_doppler_shifts_at_sun
         lambda_1_rock, lambda_2_rock = self.mission.measure_star_doppler_shifts()
-        phi_1, phi_2 = self.mission.star_direction_angles
+        phi = self.mission.star_direction_angles
+        phi_1 = np.deg2rad(phi[0])
+        phi_2 = np.deg2rad(phi[1])
 
-        radial_velocity1 = c.c*(lambda_1_sun - lambda_1_rock)/reference_wavelength
-        radial_velocity2 = c.c*(lambda_2_sun - lambda_2_rock)/reference_wavelength
+        radial_velocity1 = c.c_AU_pr_yr*(lambda_1_sun - lambda_1_rock)/reference_wavelength
+        radial_velocity2 = c.c_AU_pr_yr*(lambda_2_sun - lambda_2_rock)/reference_wavelength
 
-        radial_velocity = np.array([[radial_velocity1], [radial_velocity2]])
+        #radial_velocity = np.array([radial_velocity1, radial_velocity2])
         conts = 1/np.sin(phi_2 - phi_1)
-        transformation = conts*np.array([[np.sin(phi_2), np.sin(phi_1)],
-                                         [np.cos(phi_2), np.cos(phi_1)]])
+        #transformation = conts*np.array([[np.sin(phi_2), -np.sin(phi_1)],
+        #                                 [-np.cos(phi_1), np.cos(phi_1)]])
 
-        rocket_vel = np.dot(transformation, radial_velocity)
-        rocket_vel_AU_y = (rocket_vel/c.AU)*c.yr
-        return rocket_vel_AU_y.reshape((2))
+        #rocket_vel = np.dot(transformation, radial_velocity)
+        rocket_vel_x = conts*(np.sin(phi_2) * radial_velocity1 - np.sin(phi_1) * radial_velocity2)
+        rocket_vel_y = conts*(-np.cos(phi_1) * radial_velocity1 + np.cos(phi_2) * radial_velocity2)
+        rocket_vel = np.array([rocket_vel_x, rocket_vel_y])
+        rocket_vel_AU_y = rocket_vel
+        print(f'The rocket velocity is {rocket_vel_AU_y}')
+        return rocket_vel_AU_y
 
 if __name__ == '__main__':
     mission = SpaceMission.load('part1.bin')
