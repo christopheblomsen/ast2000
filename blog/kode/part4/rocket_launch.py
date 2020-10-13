@@ -38,7 +38,7 @@ Call launch_process to actually launch the rocket.
 '''
 class rocket_launch:
     # A class for calculating the launch of our rocket
-    def __init__(self, mission, fuel_mass, engine, launch_angle, time, verbose=False):
+    def __init__(self, mission, fuel_mass, engine, launch_angle, time, dt, verbose=False):
         self.mission = mission
         self.fuel_mass = fuel_mass
         self.initial_mass = mission.spacecraft_mass+fuel_mass
@@ -49,6 +49,7 @@ class rocket_launch:
         # Number of time steps to try
         self.N = 50000
         self.verbose = verbose
+        self.dt = dt
 
         # Positions at time step i in m. Not necessary to store all unless we want to plot afterwards
         self.pos = np.zeros((self.N, 2), float)
@@ -124,10 +125,9 @@ class rocket_launch:
     dt is delta t in sec. for the Euler Cromer calculation og the ascent
 
     '''
-    def launch_process(self,dt):
+    def launch_process(self):
 
         current_mass = self.initial_mass
-        self.dt = dt
 
         print(f"Escape velocity of Hoth is {self.v_esc} km/s")
 
@@ -172,19 +172,19 @@ class rocket_launch:
         # Add planet orbital movement to launch position
         planet_pos = launch_pos + (self.vpo_ms/c.AU)*self.i*self.dt
         '''
-        orbital_velocity = self.planet_orbital_velocity(0,self.time)
-
-        self.orbital_movement = orbital_velocity*(self.i*self.dt/c.yr)
-        if(self.verbose):
-            print(f'orbital_movement {self.orbital_movement} AU')
-
+        # Calculate time at escape pos
         self.escape_time = self.time + (self.i*self.dt/c.yr)
-        self.launch_site_position = self.planet_position(0,self.escape_time)+self.get_planet_launch_pos()+self.orbital_movement
+
+        planet_position = self.planet_position(0,self.escape_time)
+
+        print(f'orbital_movement {np.sqrt(self.orbital_movement[0]**2+self.orbital_movement[1]**2)*c.AU} m')
+
+        self.launch_site_position = planet_position + self.get_planet_launch_pos() #+self.orbital_movement
 
         if(self.verbose):
             print(f'Launch site position {self.launch_site_position} AU')
 
-        escape_pos = self.get_planet_escape_pos()+self.orbital_movement
+        escape_pos = self.get_planet_escape_pos() #+self.orbital_movement
 
         # Add escape position vector to planet position vector
         rotated_escape_pos_x, rotated_escape_pos_y  = tools.polar_cartesian(escape_pos[0],escape_pos[1])
@@ -279,11 +279,23 @@ class rocket_launch:
 
         # Find index of time closest to our t
         idx = (np.abs(self.times - t)).argmin()
+        print(f'Time is {t}')
+        print(f'Planet position is {self.planet_positions[:,n,idx]} at index {idx} at time {self.times[idx]}')
+        print(f'Planet position is {self.planet_positions[:,n,idx+1]} at index {idx+1} at time {self.times[idx+1]}')
 
         # Get planet position at time t
         planet_position = self.planet_positions[:,n,idx]
 
-        return planet_position
+        # Interpolate position to exact time
+        dt = t - self.times[idx]
+        # Calculate orbital movement
+        orbital_velocity = self.planet_orbital_velocity(n,self.time)
+
+        print(f'Difference in time between position got and actual time {dt}')
+        print(f'Orbital velocity is  {orbital_velocity}')
+        self.orbital_movement = orbital_velocity*dt
+
+        return planet_position + self.orbital_movement
 
     def planet_orbital_velocity(self,n,t):
         '''
@@ -331,7 +343,7 @@ class rocket_launch:
         '''
         analytical=False
         rocket_position = self.final_position()
-        planet_position = self.planet_position(0,self.escape_time)+self.orbital_movement
+        planet_position = self.planet_position(0,self.escape_time)
         trajectories = self.get_trajectories(n)
         # Plot the planet orbit around the star
         fig, ax = plt.subplots()
@@ -351,10 +363,17 @@ class rocket_launch:
         # Plot the planet
         planet=plt.Circle((planet_position),self.mission.system.radii[n]*1000/c.AU,color='b',fill=True)
 
+
         ax.plot(self.launch_site_position[0],self.launch_site_position[1],'r.')
+        # Plots the errror we get from verify_launch_result
+        #launch_error=plt.Circle((self.launch_site_position),2.95244e+06/c.AU,color='r',fill=False)
+        # Plots the maximum allowed errer from verify_launch_result
+        #max_error=plt.Circle((self.launch_site_position),66224.2/c.AU,color='g',fill=False)
         ax.plot(rocket_position[0],rocket_position[1],'g.')
         ax.add_artist(star)
         ax.add_artist(planet)
+        #ax.add_artist(launch_error)
+        #ax.add_artist(max_error)
         # Plot the center of the planet
         ax.plot(planet_position[0],planet_position[1],'k.')
 
@@ -410,21 +429,22 @@ if __name__ == '__main__':
     temperature = 3000
     t = args.t       # Time in years after t=0 to launch at
     angle = args.launch_angle # Angle along equator to launch from in radians
+    dt = 0.01
 
     # Construct the engine
     engine = rocket_engine_factory(rocket_filename,motors,args)
 
     # Construct the launch object
-    launch = rocket_launch(mission,fuel_mass,engine, angle, t, args.verbose)
+    launch = rocket_launch(mission,fuel_mass,engine, angle, t, dt, args.verbose)
 
     # Prints details of the rocket
     print(launch)
 
     # Launch the rocket
-    launch.launch_process(0.01)
+    launch.launch_process()
 
     #launch.plot_launch_position()
-    launch.plot_orbit(0,False)
+    #launch.plot_orbit(0,False)
     launch.plot_orbit(0)
 
     launch_pos = launch.get_launch_pos(t)
