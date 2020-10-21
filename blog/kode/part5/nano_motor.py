@@ -23,7 +23,7 @@ class nano_motor:
     #
     def __init__(self,L,N,T,dt):
         self.L = L # meters
-        self.N = N
+        self.N = int(N)
         self.mu = 0
         self.T = T
         self.dt = dt
@@ -31,10 +31,10 @@ class nano_motor:
 
         np.random.seed(90207617)
         # The x,y,z position of the particles
-        self.pos = np.zeros((3,N))
+        self.pos = np.zeros((3,self.N))
 
         # The velocity in x,y,z direction of the particles
-        self.v = np.zeros((3,N))
+        self.v = np.zeros((3,self.N))
 
         # The exit box length, start and end points for x and y axis
         self.l = self.L/4
@@ -42,14 +42,14 @@ class nano_motor:
         self.end = self.start + self.l
 
         # Pick a random distribution for the position
-        self.pos[0] = np.random.uniform(0,L,N)
-        self.pos[1] = np.random.uniform(0,L,N)
-        self.pos[2] = np.random.uniform(0,L,N)
+        self.pos[0] = np.random.uniform(0,L,self.N)
+        self.pos[1] = np.random.uniform(0,L,self.N)
+        self.pos[2] = np.random.uniform(0,L,self.N)
 
         # Pick a normal distribution for the velocity
-        self.v[0] = np.random.normal(self.mu,self.sigma,N)
-        self.v[1] = np.random.normal(self.mu,self.sigma,N)
-        self.v[2] = np.random.normal(self.mu,self.sigma,N)
+        self.v[0] = np.random.normal(self.mu,self.sigma,self.N)
+        self.v[1] = np.random.normal(self.mu,self.sigma,self.N)
+        self.v[2] = np.random.normal(self.mu,self.sigma,self.N)
 
         # Accumulated momentum
         self.p = 0
@@ -187,7 +187,7 @@ class nano_motor:
 if __name__ == "__main__":
     dt = 1e-12
     steps = 1000
-    N = 10**5 # Number of particles to simulate
+    N = 9.8**5 # Number of particles to simulate
     T = 3500 # Temperature
     L = 10**-6 # Box side length in m
     filename = 'nano_motor.pkl'
