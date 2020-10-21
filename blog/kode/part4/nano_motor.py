@@ -194,7 +194,7 @@ if __name__ == "__main__":
 
     if(os.path.exists(filename) == False):
         motor = nano_motor(L,N,T,dt)
-
+        print(f'Running engine particle simulation for {steps} steps')
         for i in range(steps):
             print(f'{i:4d}\b\b\b\b', end = '',flush = True)
             motor.step()
