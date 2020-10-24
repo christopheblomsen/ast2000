@@ -11,7 +11,7 @@ import os
 import sys
 
 
-class rocket_engine:
+class RocketEngine:
 
     # Initiates the rocket engine with N nano_motors of type motor
     def __init__(self,N, motor):
@@ -77,7 +77,7 @@ if __name__ == "__main__":
     print('Single motor performance:')
     print(motor)
 
-    engine = rocket_engine(motors,motor)
+    engine = RocketEngine(motors,motor)
     fuel_consumed = engine.boost(mission.spacecraft_mass+fuel_mass,dv)
 
     print(f'ENGINE with {motors:g} motors:')

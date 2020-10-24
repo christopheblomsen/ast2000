@@ -11,9 +11,13 @@ except:
     import pickle
 from matplotlib.animation import FuncAnimation
 import tools
+from commands import Command, Boost, Launch, CorrectionalBoost
 
-class trajection_computer:
-
+class TrajectionComputer:
+    '''
+    The responsibility of this class is to calculate the spacecraft trajectory from a given
+    time, position and initial velocity
+    '''
     def __init__(self, spacecraft_mass, seed=33382):
 
         # Configures logging
@@ -26,6 +30,13 @@ class trajection_computer:
         )
 
         self.spacecraft_mass = spacecraft_mass
+
+        # Keeps the results from simulate_trajectories
+        # You can call simulated_trajectories multiple times and the
+        # results are added to these arrays
+        self.spacecraft_positions = None
+        self.spacecraft_velocities = None
+        self.rocket_trajectory_times = None
         # Downloads planet trajectories from URL if they do not exist on local disk
         trajectories_filename = "planet_trajectories.npz"
 
@@ -47,6 +58,7 @@ class trajection_computer:
         print(f'Planet trajectories {self.planet_positions.shape[1]} planets loaded')
 
         self.system = SolarSystem(seed)          # Our famous system
+
 
     def planet_positions_at_t(self, t):
 
@@ -143,6 +155,7 @@ class trajection_computer:
         def update(frame):
             pos = self.planet_positions_at_t(frame)
             sp_pos = np.array([self.spacecraft_position_at_t(frame)])
+            plt.title(f'Time {frame:.2f}')
             #print(f'sp_pos: {sp_pos}')
             #all=np.append(pos,sp_pos,axis=0)
 
@@ -158,7 +171,7 @@ class trajection_computer:
         anim = FuncAnimation(fig, update, frames=np.linspace(t0, t0+t, steps),
                             init_func=init, blit=True)
 
-        anim.save('orbit_animation.gif', writer='imagemagick', fps=60)
+        anim.save('orbit_animation.gif', writer='imagemagick', fps=100)
         plt.show()
 
     def planet_html_table(self,t):
@@ -169,7 +182,10 @@ class trajection_computer:
         print(f'</table>')
 
     def simulate_trajectory(self, initial_time, initial_position, initial_velocity, simulation_time, dt):
-        final_time = initial_time + simulation_time
+        '''
+        Simulates the spacecraft trajectory from initial position, time and velocity
+        Returns final position, velocity and time
+        '''
         final_position = initial_position
         final_velocity = initial_velocity
         N = self.system.number_of_planets
@@ -177,60 +193,89 @@ class trajection_computer:
 
         def f(r, t):
             '''
-            Calculates force when we are at position r at time t
+            Calculates acceleration when we are at position r at time t
             And returns acceleration in AU/yr
             '''
-            lrl = np.linalg.norm(r)     # distance in m
-            #print(f'r = {r}, lrl = {lrl}, t = {t}')
-            a_s = -c.G_sol*((self.system.star_mass)/lrl**3)*r # acceleration from gravitational force from star in m/s**2
-            #print(f'as: {a_s} = (({self.system.star_mass*c.m_sun})/{lrl**3}*{r}')
-            rp = r - self.planet_positions_at_t(initial_time+t) # Get planet positions at time t in meters
+            lrl = np.linalg.norm(r)     # distance in AU
+
+            a_s = -c.G_sol*((self.system.star_mass)/lrl**3)*r # acceleration from gravitational force from star
+
+            rp = r - self.planet_positions_at_t(initial_time+t) # Get planet positions at time t in AU
             ap = np.zeros((self.system.number_of_planets,2)) # Hold sum of gravitational force vectors for all planets
             for i in range(N):
                 ap[i]  = -c.G_sol*((self.system.masses[i])/np.linalg.norm(rp[i])**3)*rp[i]
-                #print(f'ap[{i}]: {ap[i]} = (({self.system.masses[i]*c.m_sun})/{np.linalg.norm(rp[i])**3})*{rp[i]}')
 
-            a = a_s # Total accelleration from gravitational force
+
+            a = a_s # a is total accelleration from gravitational force of star and planets
             for x in ap:
                 a += x
-            #print(f'a = {a}')
-            #print(f'sum = {np.sum(a,axis=0)} at {t}')
+
             return a
 
         r0 = initial_position
         v0 = initial_velocity
         T = simulation_time
 
-        self.spacecraft_positions, self.spacecraft_velocities, a, self.rocket_trajectory_times = tools.leapfrog(r0, v0, T, dt, f)
+        spacecraft_positions, spacecraft_velocities, a, rocket_trajectory_times = tools.leapfrog(r0, v0, T, dt, f)
+        rocket_trajectory_times = rocket_trajectory_times + initial_time
 
-        return self.rocket_trajectory_times, self.spacecraft_positions, self.spacecraft_velocities, a
+        if self.spacecraft_positions is not None:
+            self.spacecraft_positions = np.concatenate((self.spacecraft_positions, spacecraft_positions))
+        else:
+            self.spacecraft_positions = spacecraft_positions
+
+        if self.spacecraft_velocities is not None:
+            self.spacecraft_velocities = np.concatenate((self.spacecraft_velocities, spacecraft_velocities))
+        else:
+            self.spacecraft_velocities = spacecraft_velocities
+
+        if self.rocket_trajectory_times is not None:
+            self.rocket_trajectory_times = np.concatenate((self.rocket_trajectory_times, rocket_trajectory_times))
+        else:
+            self.rocket_trajectory_times = rocket_trajectory_times
+
+        return self.rocket_trajectory_times[-1], self.spacecraft_positions[-1], self.spacecraft_velocities[-1]
+
 
 if __name__ == '__main__':
 
     spacecraft_mass = 1579
-    tcomp = trajection_computer(spacecraft_mass)
+    tcomp = TrajectionComputer(spacecraft_mass)
 
 
 
     print(f'Planet 0 position at t=0 [{tcomp.planet_position(0,0)[0]},{tcomp.planet_position(0,0)[1]}]')
     initial_position = np.array([0.3658614707234236,8.831289590080655e-05])
-    initial_velocity = np.array([2.5593576572450947,8.92172415360237])#np.array([2.5593576572450947,0.09843921360236853])
+    initial_velocity = np.array([2.5593576572450947,8.92172415360237])
     initial_time = 0
     steps = 1000
-    days = 21
-    time = 0.6 #days*c.day/c.yr
-    final_time, position, velocity, acc = tcomp.simulate_trajectory(initial_time,initial_position,initial_velocity,time,time/steps)
+    days = 76
+    duration = days*c.day/c.yr
+    dt = duration/steps
+    intermediate_time, position, velocity = tcomp.simulate_trajectory(initial_time, initial_position, initial_velocity, duration, dt)
 
-    print(f'RESULTS with {steps} steps during {time} years')
-    print(f'    Initial time {initial_time} year')
-    print(f'      Final time {final_time[-1]} year')
-    print(f'Initial position {position[0]} AU')
-    print(f'  Final position {position[-1]} AU')
-    print(f'Initial velocity [{velocity[0,0]} {velocity[0,1]}] AU/yr')
-    print(f'  Final velocity [{velocity[-1,0]} {velocity[-1,1]}] AU/yr')
+    print(f'RESULTS with {steps} steps during {duration} years')
+    print(f'     Initial time {initial_time} year')
+    print(f'Intermediate time {intermediate_time} year')
+    print(f' Initial position {initial_position} AU')
+    print(f'   Final position {position} AU')
+    print(f' Initial velocity [{initial_velocity[0]} {initial_velocity[1]}] AU/yr')
+    print(f'   Final velocity [{velocity[0]} {velocity[1]}] AU/yr')
 
-    tcomp.animate_orbits(0,0.6,360)
-    #plt.plot(position[:,0], position[:,1])
+    # Direction adjustment
+    new_velocity = velocity + np.array([4.0,4.0])
+    print(f'     New velocity [{new_velocity[0]} {new_velocity[1]}] AU/yr')
+    end_time, position, velocity = tcomp.simulate_trajectory(intermediate_time, position, new_velocity, duration, dt)
+
+    print(f'       Final time {end_time} year')
+    print(f'   Final position {position} AU')
+    print(f'   Final velocity [{velocity[0]} {velocity[1]}] AU/yr')
+
+    tcomp.animate_orbits(initial_time,duration*2,500)
+    #plt.plot(tcomp.spacecraft_velocities[:,0], tcomp.spacecraft_velocities[:,1])
+    #x = np.linspace(0,end_time,len(tcomp.rocket_trajectory_times))
+    #plt.plot(x,tcomp.rocket_trajectory_times)
+    #plt.show()
     #plt.scatter(position[0,0],position[0,1],marker='x')
     #plt.scatter(position[-1,0],position[-1,1],marker='o')
 

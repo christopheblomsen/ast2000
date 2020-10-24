@@ -36,16 +36,15 @@ Call launch_process to actually launch the rocket.
 - times         The time in years at which to launch
 
 '''
-class spacecraft:
+class Spacecraft:
     # A class for calculating the launch of our rocket
-    def __init__(self, mission, fuel_mass, engine, launch_angle, time, dt, verbose=False):
+    def __init__(self, mission, fuel_mass, engine, dt, verbose=False):
         self.mission = mission
         self.fuel_mass = fuel_mass
         self.initial_mass = mission.spacecraft_mass+fuel_mass
         self.system = SolarSystem(33382)
         self.engine = engine
-        self.launch_angle = launch_angle
-        self.time = time
+
         # Number of time steps to try
         self.N = 50000
         self.verbose = verbose
@@ -98,8 +97,6 @@ class spacecraft:
         str = f"Launch parameters:\n"
         str = str + f"                      Name | Value \n"
         str = str + f"=========================================\n"
-        str = str + f"               Launch time | {self.time:g} year\n"
-        str = str + f"              Launch angle | {self.launch_angle:g} radians\n"
         str = str + f"               Planet mass | {self.M:g} kg\n"
         str = str + f"             Planet radius | {self.r:.2f} m\n"
         str = str + f"  Planet rotational period | {self.system.rotational_periods[0]:.2f} days\n"
@@ -125,11 +122,15 @@ class spacecraft:
     dt is delta t in sec. for the Euler Cromer calculation og the ascent
 
     '''
-    def launch_process(self):
+    def launch_process(self, launch_angle, time):
+        self.launch_angle = launch_angle
+        self.time = time
+        print(f"               Launch time | {self.time:g} year")
+        print(f"              Launch angle | {self.launch_angle:g} radians")
+        print(f"   Escape velocity of Hoth | {self.v_esc} km/s")
 
         current_mass = self.initial_mass
 
-        print(f"Escape velocity of Hoth is {self.v_esc} km/s")
 
         for i in range(self.N):
             self.i = i
@@ -441,13 +442,13 @@ if __name__ == '__main__':
     engine = rocket_engine_factory(rocket_filename,motors,temperature, steps,particles, args)
 
     # Construct the launch object
-    space_craft = spacecraft(mission,fuel_mass,engine, angle, t, dt, args.verbose)
+    space_craft = Spacecraft(mission,fuel_mass,engine, dt, args.verbose)
 
     # Prints details of the rocket
     print(space_craft)
 
     # Launch the rocket
-    space_craft.launch_process()
+    space_craft.launch_process(angle, t,)
 
     #launch.plot_launch_position()
     #launch.plot_orbit(0,False)
