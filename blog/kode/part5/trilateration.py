@@ -1,4 +1,4 @@
-# Egen kode
+"""Egen kode."""
 import numpy as np
 import matplotlib.pyplot as plt
 from ast2000tools.solar_system import SolarSystem
@@ -8,11 +8,10 @@ import os as operatingsystem
 import orbit_sim as os
 
 
-class trilateration:
+class Trilateration:
+    """Calculate velocity, orientation and position."""
     def __init__(self, mission, seed=33382, dt=1000):
-        '''
-        Something
-        '''
+        """Initialize the Triliteration object."""
         self.system = SolarSystem(seed)
         self.mission = mission
         self.orbit = os
@@ -30,11 +29,7 @@ class trilateration:
         self.just_calculation_orbit()
 
     def leapfrog(self, r0, v0, T, dt):
-        '''
-        Leapfrog integration
-        couldn't use the one from orbit sim for
-        some reason
-        '''
+        """Leapfrog integration."""
         G = self.G                               # For less writing
         N = int(T/dt)                            # Length of all our vectors
         t = np.zeros(N, float)                   # time array
@@ -52,9 +47,9 @@ class trilateration:
 
         a[0, :] = -G*M/(distance[0]**3) * r[0, :]
         for i in range(N-1):
-            '''
+            """
             The actual leapfrog algorithm
-            '''
+            """
             r[i + 1, :] = r[i, :] + v[i, :]*dt + 0.5*a[i, :]*dt**2
             distance[i + 1] = np.linalg.norm(r[i + 1, :])
 
@@ -65,6 +60,7 @@ class trilateration:
         return r, v, a, t
 
     def just_calculation_orbit(self):
+        """Calculates planet orbits."""
         mu = self.mu
         N = len(self.system.masses)
 
@@ -83,9 +79,7 @@ class trilateration:
             self.v_numerical.append(v)
 
     def comparrison(self, vec1, vec2, tol=1):
-        '''
-        Comparing 2 vectors
-        '''
+        """Comparing 2 vectors."""
         N = vec1.shape[1]
         mindiff = (tol, tol)
         minindex = 0
@@ -99,52 +93,21 @@ class trilateration:
 
         return vec1[:, minindex]
 
-    def circles_old(self, radii, a, b):
-        '''
-        calculating the x and y values around
-        planets given from a radii from the radar
-        a, and b are the planet positions in that
-        timestep
-        '''
-        theta = np.linspace(0, 2*np.pi, 1000)
-        N = len(radii)
-        vec = np.zeros((N, 2), float)
-
-        for i in range(N):
-            '''
-            Runs through all the planets
-            '''
-            if a == b and b == 0:
-                x = radii[i]*np.cos(theta)
-                y = radii[i]*np.sin(theta)
-            elif b == 0:
-                x = radii[i]*np.cos(theta) + a[i]
-                y = radii[i]*np.sin(theta)
-            elif a == 0:
-                x = radii[i]*np.cos(theta)
-                y = radii[i]*np.sin(theta) + b[i]
-            else:
-                x = (a[i]**2 + b[i]**2 - 2*b[i]*radii[i]*np.sin(theta))/(2*a[i])
-                y = (a[i]**2 + b[i]**2 - 2*a[i]*radii[i]*np.cos(theta))/(2*b[i])
-            vec[i, 0] = x
-            vec[i, 1] = y
-        self.vec = vec
-
     def circle(self, radii, a, b):
-        '''
-        New and improved circles
+        """Return a vector with points on a circle.
+
         radii is a list of distances to objects
         a[i] is that objects x coordinate
         b[i] is that objects y coordinate
-        '''
+        """
         N = len(a)
         theta = np.linspace(0, 2*np.pi, 5000)
         vec = np.zeros((2, N, 5000), float)
 
         for i in range(N):
-            '''
+            """
             Runs through all the planets
-            '''
+            """
             x = radii[i]*np.cos(theta) + a[i]
             y = radii[i]*np.sin(theta) + b[i]
             vec[0, i] = x
@@ -154,14 +117,12 @@ class trilateration:
         return vec
 
     def same_coordinates(self, radii, a, b):
-        '''
-        Checks if the coordinates are correct
-        '''
+        """Checks if the coordinates are correct."""
         correct = []
         N = len(a)
-        '''
+        """
         Finds the correct x and y coordinates
-        '''
+        """
         vec = self.circle(radii, a, b)
         if(operatingsystem.path.exists('candidates.npy')):
             return np.load('candidates.npy', allow_pickle=True)
@@ -177,6 +138,7 @@ class trilateration:
         return np.array(correct, dtype=object)
 
     def find_closest_neighbours(self, x, y, tol):
+        """Find the closest neighbours of set of points."""
         neighbours = {}
         for i in range(len(x)):
             neighbours[i] = []
@@ -184,17 +146,15 @@ class trilateration:
             for j in range(len(x)):
                 if i != j:
                     distance = np.sqrt((x[i]-x[j])**2+(y[i]-y[j])**2)
-                    if distance < 0.01:
+                    if distance < tol:
                         neighbours[i].append(j)
                         print(f'Length between {i} and {j} {distance}')
 
         return neighbours
 
     def tri_test(self, distances):
-        '''
-        Test for t=0 at home planet
-        '''
-        times, planet_pos = self.times, self.planet_pos
+        """Test for t=0 at home planet."""
+        planet_pos = self.planet_pos
 
         # Find the three clostest planets, excluding our mother planet
         closest = np.argsort(distances)[1:4]
@@ -228,7 +188,7 @@ class trilateration:
                             y[neighbours[neighbour]].sum()/3]
 
         plt.scatter(candidates[:, 0], candidates[:, 1], c='r')
-        plt.scatter(centroid[0], centroid[1], c='g')
+        # plt.scatter(centroid[0], centroid[1], c='g')
         plt.xlabel('AU')
         plt.ylabel('AU')
         plt.legend()
@@ -237,9 +197,7 @@ class trilateration:
         return centroid
 
     def radial_velocity(self):
-        '''
-        Calculates radial_velocity from doppler
-        '''
+        """Calculates radial_velocity from doppler."""
         reference_wavelength = self.mission.reference_wavelength
         lambda_1_sun, lambda_2_sun = self.mission.star_doppler_shifts_at_sun
         lambda_1_rock, lambda_2_rock = self.mission.measure_star_doppler_shifts()
@@ -262,12 +220,12 @@ class trilateration:
 
 if __name__ == '__main__':
     mission = SpaceMission.load('part1.bin')
-    tri = trilateration(mission)
+    tri = Trilateration(mission)
     vel = tri.radial_velocity()
     print(vel)
 
-'''
+"""
 $ python trilateration.py
 SpaceMission instance loaded from part1.bin.
 [2.43963171 8.92174606]
-'''
+"""

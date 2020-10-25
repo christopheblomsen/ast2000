@@ -171,7 +171,7 @@ class TrajectionComputer:
         anim = FuncAnimation(fig, update, frames=np.linspace(t0, t0+t, steps),
                             init_func=init, blit=True)
 
-        anim.save('orbit_animation.gif', writer='imagemagick', fps=100)
+        anim.save('orbit_animation.gif', writer='imagemagick', fps=150)
         plt.show()
 
     def planet_html_table(self,t):

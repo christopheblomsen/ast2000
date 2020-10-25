@@ -1,4 +1,4 @@
-# Egen kode
+"""Egen kode."""
 import numpy as np
 import matplotlib.pyplot as plt
 from ast2000tools.solar_system import SolarSystem
@@ -11,16 +11,16 @@ import load_orbit_sim as los
 import tools
 
 class orbit_sim:
-    '''
+    """
     A class to numericaly calculate the
     orbits from a system of stars
     if both semi major axes and radii
     is known
-    '''
+    """
     def __init__(self, seed=33382):
-        '''
+        """
         Need to figure this one out
-        '''
+        """
         self.system = SolarSystem(seed)          # Our famous system
         self.axes = self.system.semi_major_axes  # All the semi major axes for formulas
         self.e = self.system.eccentricities      # All the eccentricities for formulas
@@ -38,9 +38,7 @@ class orbit_sim:
 
 
     def euler_cromer(self, r0, v0, T, dt):
-        '''
-        euler cromer
-        '''
+        """Euler Cromer."""
         G = self.G                               # For less writing
         N = int(T/dt)                            # Length of all our vectors
         t = np.zeros(N, float)                   # time array
@@ -65,32 +63,24 @@ class orbit_sim:
         return r, v, a, t
 
     def r(self,t):
-        '''
-        Returns the distance r for all planets at timestep t from the simulation
-        '''
+        """Return the distance r for all planets at timestep t from the simulation."""
         r_vec = np.array(self.r_numerical)[:,t]
         return np.sqrt(r_vec[:,0]**2+r_vec[:,1]**2)
 
     def v(self,t):
-        '''
-        Returns the velocity for all planets at timestep t from the simulation
-        '''
+        """Return the velocity for all planets at timestep t from the simulation."""
         v_vec = np.array(self.v_numerical)[:,t]
         return np.sqrt(v_vec[:,0]**2+v_vec[:,1]**2)
 
     def simulated_aphelion(self):
-        '''
-        Finds maximum distance from star for all planets
-        '''
+        """Find maximum distance from star for all planets."""
         r_vec = np.array(self.r_numerical)
         r = np.sqrt(r_vec[:,:,0]**2+r_vec[:,:,1]**2)
         return r[:,np.argmax(r,axis=1)]
 
 
     def mean_velocity(self):
-        '''
-        Returns the mean velocity of the planets
-        '''
+        """Return the mean velocity of the planets."""
         v_vec = np.array(self.v_numerical)
         # Calculate velocity at all times
         velocities = np.sqrt(v_vec[:,:,0]**2+v_vec[:,:,1]**2)
@@ -98,15 +88,11 @@ class orbit_sim:
         return np.mean(velocities,axis=1)
 
     def dArea(self,t):
-        '''
-        Calulate the area swept out at timestep t and over time self.dt
-        '''
+        """Calulate the area swept out at timestep t and over time self.dt."""
         return 0.5*self.r(t)[0]*(self.v(t)*self.dt)
 
     def area_swiped_during_period(self,t,days):
-        '''
-        Calculate area swiped during a number of days.
-        '''
+        """Calculate area swiped during a number of days."""
         dtPrDay = self.timesteps_pr_orbit/(self.hoth_period()*c.yr/c.day)
         n = int(dtPrDay*days)
         totalArea = 0
@@ -116,9 +102,7 @@ class orbit_sim:
         return totalArea
 
     def distance_traveled_during_period(self,t,days):
-        '''
-        Numerically calculate the distance traveled during # of days
-        '''
+        """Numerically calculate the distance traveled during # of days."""
         dtPrDay = self.timesteps_pr_orbit/(self.hoth_period()*c.yr/c.day)
         n = int(dtPrDay*days)
         totalDistance = 0
@@ -128,19 +112,14 @@ class orbit_sim:
         return totalDistance
 
     def hoth_period(self):
-        '''
-        The rotational periode of our planet in years
-        '''
+        """Return the rotational periode of our planet in years."""
         return 2*np.pi*np.sqrt(self.axes[0]**3/self.mu[0])
 
     def hoth_perhelion_t(self):
         return int(self.hoth_period()/self.dt/2)
 
     def sim(self):
-        '''
-        Simulating all the orbits
-        '''
-
+        """Simulate all the orbits."""
         print('Simulating orbits')
 
         mu = self.mu                                                # Standard gravitational parameter
@@ -188,23 +167,22 @@ class orbit_sim:
 
         return R
     def to_center_mass_positions(self,r,m1,m2):
-        '''
-        Move bodies to center of mass coordinate system
+        """
+        Move bodies to center of mass coordinate system.
+
         r = distance vector between bodies
         m1 = mass of body 1
         m2 = mass of body 2
 
         Returns positions of the two bodies relative to the center of mass
-        '''
+        """
         mu = (m1*m2)/(m1+m2)
         r1cm = r*mu/m1
         r2cm = -r*mu/m2
         return r1cm, r2cm
 
     def solar_orbit(self, planet):
-        '''
-        Simulate planet and star orbiting a common center of mass
-        '''
+        """Simulate planet and star orbiting a common center of mass."""
         star_initial_pos = np.array([0, 0])
         star_initial_vel = np.array([0, 0])
 
@@ -236,9 +214,7 @@ class orbit_sim:
         plt.show()
 
     def leapfrog2(self, r0, v0, m1, m2, T, dt):
-        '''
-        Leapfrog integration for 2 body orbit
-        '''
+        """Leapfrog integration for 2 body orbit. """
         G = self.G                               # For less writing
         N = int(T/dt)                            # Length of all our vectors
         t = np.zeros(N, float)                   # time array
@@ -264,9 +240,9 @@ class orbit_sim:
         a1[0, :] = -G*m2/(ar**2) * r[0]
         a2[0, :] = G*m1/(ar**2) * r[0]
         for i in range(N-1):
-            '''
+            """
             The actual leapfrog algorithm
-            '''
+            """
             r1[i + 1, :] = r1[i, :] + v1[i, :]*dt + 0.5*a1[i, :]*dt**2
             r2[i + 1, :] = r2[i, :] + v2[i, :]*dt + 0.5*a2[i, :]*dt**2
             r[i + 1] = r1[i+1,:]+r2[i+1,:]
@@ -279,9 +255,7 @@ class orbit_sim:
 
         return r1, r2, t
     def cartesian_polar(self, r):
-        '''
-        Converts to polar coordinates
-        '''
+        """Convert to polar coordinates."""
         x = r[:, 0]                             # x values
         y = r[:, 1]                             # y values
         r_p = np.zeros(len(r))
@@ -292,9 +266,7 @@ class orbit_sim:
         return r_p, theta
 
     def polar_cartesian(self, r, theta):
-        '''
-        Converts to cartesian
-        '''
+        """Convert to cartesian."""
         N = len(theta)
         x = np.zeros(N, float)
         y = np.zeros(N, float)
@@ -307,9 +279,7 @@ class orbit_sim:
         theta = np.linspace(0, 2*np.pi, 1000)   # array from 0 to 2pi
 
         def r(axes, e, theta, omega):
-            '''
-            Analytical formula
-            '''
+            """Analytical formula."""
             ans = (axes*(1 - e**2))/(1 + e*np.cos(theta - omega))
             return ans
 
@@ -355,10 +325,7 @@ class orbit_sim:
         plt.show()
 
     def least_squares(self, v0, v_end, v_r, P0, P_end, P, t0, t_end):
-        '''
-        Least squares method for finding the
-        most likely candidate
-        '''
+        """Least squares method for finding the most likely candidate."""
         v = np.linspace(v0, v_end, 1000)
         P = np.linspace(P0, P_end, 1000)
         t = np.linspace(t0, t_end, 1000)

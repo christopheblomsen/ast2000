@@ -1,4 +1,4 @@
-# Egen kode
+"""Egen kode."""
 import numpy as np
 import math
 import random
@@ -13,15 +13,17 @@ except:
    import pickle
 
 class nano_motor:
+    """Class to simulate a gas driven rocket motor."""
 
-    #
-    # Initialze a motor
-    # L side length in meters
-    # N number of particles
-    # T temperature in Kelvin
-    # dt delta time in seconds for every step when calculating particle movement
-    #
     def __init__(self,L,N,T,dt):
+        """
+        Initialze a motor.
+
+        L side length in meters
+        N number of particles
+        T temperature in Kelvin
+        dt delta time in seconds for every step when calculating particle movement
+        """
         self.L = L # meters
         self.N = int(N)
         self.mu = 0
@@ -60,8 +62,8 @@ class nano_motor:
         # Number of particles that have left the builing
         self.np = 0
 
-    # Move all particles one time step
     def step(self):
+        """Move all particles one time step."""
         try:
             self.pos[0] += [self.dt*self.detect_collision(0,n) for n in range(self.N)]
             self.pos[1] += [self.dt*self.detect_collision(1,n) for n in range(self.N)]
@@ -70,10 +72,13 @@ class nano_motor:
         finally:
             return
 
-    # Create a new particle at position n in the arrays
-    # The particle is created randomly at the "top" of the box
-    # With a volcity pointing in some normally distributed direction downwards
     def fill_new_particle(self,n):
+        """
+        Create a new particle at position n in the arrays.
+
+        The particle is created randomly at the "top" of the box
+        With a volcity pointing in some normally distributed direction downwards
+        """
         self.pos[0,n] = np.random.uniform(0,self.L,1)
         self.pos[0,n] = np.random.uniform(0,self.L,1)
         self.pos[2,n] = self.L # All particles enters from top
@@ -82,8 +87,8 @@ class nano_motor:
         # We assume the velocity in the z axis is negative because it is entering from "above"
         self.v[2,n] = abs(np.random.normal(self.mu,self.sigma))*-1
 
-    # Detect if particle goes beyond the box and returns updated velocity
     def detect_collision(self,i, n):
+        """Detect if particle goes beyond the box and returns updated velocity."""
         if self.pos[i,n] >= self.L or self.pos[i,n] <= 0:
             if(i == 2 and self.pos[i,n] <= 0 and self.detect_exit(n)):
                 self.fill_new_particle(n)
@@ -91,8 +96,8 @@ class nano_motor:
             self.v[i,n] = self.v[i,n] * -1
         return self.v[i,n]
 
-    # Returns True if particle has passed through exit area
     def detect_exit(self,n):
+        """Return True if particle has passed through exit area."""
         if self.pos[0,n] >= self.start and self.pos[0,n] <= self.end:
             if self.pos[1,n] >= self.start and self.pos[1,n] <= self.end:
                 # Since exit is in the negative direction on the z axis we take the absolute value of velocity
@@ -100,37 +105,46 @@ class nano_motor:
                 return True
         return False
 
-    # Returns the fuel consumption in kg/s
+    #
     def fuel_consumption(self):
-        # n particles with mass / time we have run the simulation
+        """
+        Return the fuel consumption in kg/s.
+
+        n particles with mass / time we have run the simulation
+        """
         return (self.np * constants.m_H2)/(self.dt*self.steps)
 
-    # Thrust = P/dt in N where P is momentum and dt is time
+    #
     def calculated_thrust(self):
-        # Momentum / time
+        """
+        Thrust = P/dt in N where P is momentum and dt is time.
+
+        Momentum / time
+        """
         return self.p/(self.dt*self.steps)
 
-    #
-    # Plots velocity histogram for given direction:
-    # 0 = x
-    # 1 = y
-    # 2 = z
-    #
+
     def plot_velocity(self,i,label,color='blue'):
+        """
+        Plot velocity histogram for given direction.
+
+        0 = x
+        1 = y
+        2 = z
+        """
         plt.hist(self.v[i,:],bins=50,density=True,label=label,color=color)
         plt.xlabel('Velocity m/s')
         plt.ylabel('Probability')
 
     def plot_absolute_velocity(self,label):
+        """Plot the absollute velocity."""
         abs_v = np.sqrt(self.v[0,:]**2+self.v[1,:]**2+self.v[2,:]**2)
         plt.hist(abs_v,bins=50,density=True,label=label)
         plt.xlabel('Velocity m/s')
         plt.ylabel('Probability')
 
-    #
-    # Plots the position of the particles
-    #
     def plot_position(self):
+        """Plot the position of the particles."""
         fig = plt.figure()
         ax = fig.add_subplot(111, projection='3d')
         ax.set_xlim3d(0,self.L*1.1)
@@ -145,15 +159,16 @@ class nano_motor:
 
         self.plot_exit(ax)
 
-    # Plots the exit area as 25% of the side area
     def plot_exit(self,ax):
+        """Plot the exit area as 25% of the side area."""
         ax.plot([self.start,self.end] ,[self.start,self.start],[0,0],color='red')
         ax.plot([self.start,self.start] ,[self.start,self.end],[0,0],color='red')
         ax.plot([self.start,self.end] ,[self.end,self.end],[0,0],color='red')
         ax.plot([self.end,self.end] ,[self.start,self.end],[0,0],color='red')
 
-    # Plots the position of the box
+
     def plot_box(self,ax):
+        """Plot the position of the box."""
         # Plot the box
         ax.plot([0,self.L] ,[0,0],[0,0],color='black')
         ax.plot([0,0] ,[0,self.L],[0,0],color='black')
@@ -171,6 +186,7 @@ class nano_motor:
         ax.plot([0,0] ,[self.L,self.L],[self.L,0],color='black')
 
     def __str__(self):
+        """Print the object."""
         if(self.steps == 0):
             return 'No engine simulation has been run yet. Run the step method n times to produce results'
 
@@ -181,6 +197,7 @@ class nano_motor:
         return line1 + line2 + line3 + line4
 
     def __repr__(self):
+        """Print the object."""
         return self.__str__()
 
 

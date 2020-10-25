@@ -1,10 +1,10 @@
-# Egen kode
+"""Egen kode."""
 import numpy as np
 from ast2000tools.space_mission import SpaceMission
-import astrogation_computer
+from astrogation_computer import AstrogationComputer
 import trilateration
 
-ast_comp = astrogation_computer.astrogation_computer()
+ast_comp = AstrogationComputer()
 
 mission = SpaceMission.load('part1.bin')
 
@@ -76,4 +76,3 @@ Your manually inferred orientation was satisfyingly calculated. Well done!
 *** Achievement unlocked: Well-oriented! ***
 
 '''
-
