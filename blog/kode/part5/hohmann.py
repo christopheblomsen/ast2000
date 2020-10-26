@@ -4,6 +4,7 @@ from ast2000tools.solar_system import SolarSystem
 from ast2000tools.space_mission import SpaceMission
 import tools
 
+
 class hohmann:
     def __init__(self, seed=33382):
         """
@@ -36,6 +37,13 @@ class hohmann:
         """
         T = np.pi * np.sqrt(a/self.mu)
         return T
+
+    def time_in_seconds(self, T):
+        """
+        Converts years to seconds
+        """
+        T_new = T*86400
+        return T_new
 
     def theta_now(self, planet_start, planet_goal):
         r1 = planet_start
@@ -71,5 +79,57 @@ class hohmann:
         """
         P = np.sqrt(4*np.pi**2*a/self.mu)
         return P
-    def v_per(self, a, P, 
 
+    def planet_identifier(self, planet_id):
+        """
+        Gets all relavant info on the planet
+        """
+        a = self.system.semi_major_axis[planet_id]
+        P = self.kepler_third(a)
+        R = self.planet_pos[planet_id]
+        R_norm = np.linalg.norm(R)
+
+        return a, P, R, R_norm
+
+    def v_at_planet(self, planet_id):
+        """
+        This is for calculating the v
+        needed from periapsis to achieve
+        the Hohmann transfer
+        """
+        a, P, R, R_norm = self.planet_identifier(planet_id)
+        v = 2*np.pi*a/P * np.sqrt(2*a/R_norm - 1)
+
+        return v
+
+    def v_from_planet(self, planet_id):
+        """
+        Calculates the v from the planet
+        seen from the sun
+        """
+        a, P, R, R_norm = self.planet_identifier(planet_id)
+
+        v = 2*np.pi*R_norm/P
+        return v
+
+    def delta_v(self, planet_id):
+        """
+        Calculates the delta v from
+        the v from planet and the initial
+        velocity
+        """
+        v_planet = self.v_at_planet(planet_id)
+        v = self.v_from_planet(planet_id)
+        delta_v = v_planet - v
+        return delta_v
+
+    def check_if_close(self, planet_id):
+        """
+        Checks if spacecraft is close enough for
+        injection maneuver
+        """
+        M_planet = self.system.masses[planet_id]
+        M_sol = self.M
+        current_positon = 1  # This needs to be an array from sun to spacecraft
+        l_test = current_positon*np.sqrt(M_planet/(10*M_sol))
+        return l_test
