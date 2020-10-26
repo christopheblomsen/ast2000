@@ -72,3 +72,4 @@ class hohmann:
         P = np.sqrt(4*np.pi**2*a/self.mu)
         return P
     def v_per(self, a, P, 
+
