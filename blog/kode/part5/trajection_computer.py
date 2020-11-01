@@ -284,7 +284,7 @@ if __name__ == '__main__':
     # print(f'   Final velocity [{velocity[0]} {velocity[1]}] AU/yr')
 
     tcomp.animate_orbits(initial_time, duration, 200)
-    print('ANimation complete')
+    print('Animation complete')
     # plt.plot(tcomp.spacecraft_velocities[:,0], tcomp.spacecraft_velocities[:,1])
     # x = np.linspace(0,end_time,len(tcomp.rocket_trajectory_times))
     # plt.plot(x,tcomp.rocket_trajectory_times)
