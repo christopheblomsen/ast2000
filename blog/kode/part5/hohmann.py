@@ -1,3 +1,4 @@
+# Egen kode
 import numpy as np
 import ast2000tools.constants as c
 from ast2000tools.solar_system import SolarSystem
