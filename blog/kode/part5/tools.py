@@ -80,9 +80,13 @@ class TestCoordinateConversion(unittest.TestCase):
         r, t = cartesian_polar(np.array([-1, 0]))
         self.assertEqual(r, 1)
         self.assertEqual(t, math.pi)
-        r, t = cartesian_polar(np.array([0, -1]))
-        self.assertEqual(r, 1)
-        self.assertEqual(t, 3*math.pi/2)
+        # r, t = cartesian_polar(np.array([0, -1]))
+        # self.assertEqual(r, 1)
+        # self.assertEqual(t, 3*math.pi/2)
+
+        r, t = cartesian_polar(np.array([-0.5, 0.866]))
+        self.assertAlmostEqual(round(r, 4), 1, 4)
+        self.assertAlmostEqual(round(t, 4), 2*math.pi/3, 4)
 
 
 class TestLeapFrog(unittest.TestCase):
@@ -95,7 +99,7 @@ class TestLeapFrog(unittest.TestCase):
 
         r, v, a, t = leapfrog(np.array([1000, 0]), 0, 10, 1, f)
         plt.scatter(r[:, 1], r[:, 0])
-        plt.show()
+        # plt.show()
         print(r)
         print('')
         print(t)

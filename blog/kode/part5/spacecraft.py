@@ -1,8 +1,9 @@
 """Egen kode."""
 import numpy as np
 import rocket_engine as re
-import nano_motor as nm
+from nano_motor import nano_motor
 from astrogation_computer import AstrogationComputer
+from trajection_computer import TrajectionComputer
 from trilateration import Trilateration
 import ast2000tools.constants as c
 from ast2000tools.space_mission import SpaceMission
@@ -44,7 +45,7 @@ class Spacecraft:
         self.engine = engine
 
         # Number of time steps to try
-        self.N = 50000
+        self.N = 75000
         self.verbose = verbose
         self.dt = dt
 
@@ -176,9 +177,11 @@ class Spacecraft:
 
         self.mission.launch_rocket()
 
+        self.plot_orbit(0)
+
         self.mission.verify_launch_result(self.final_position())
 
-        self.manual_orientation()
+        self.manual_orientation(self.time)
 
         self.interplanetary_travel = self.mission.begin_interplanetary_travel()
 
@@ -206,8 +209,9 @@ class Spacecraft:
         if(self.verbose):
             print(f'Rotated escape pos [{rotated_escape_pos_x} {rotated_escape_pos_y}] m')
         final_pos = self.launch_site_position + np.array([rotated_escape_pos_x, rotated_escape_pos_y])/c.AU
-        if(self.verbose):
-            print(f'Final escape pos {final_pos} AU')
+
+        print(f'Final escape pos [{final_pos[0]}, {final_pos[1]}] AU')
+
         return final_pos
 
     def final_velocity(self):
@@ -395,7 +399,7 @@ class Spacecraft:
         """Coast through space for duration years."""
         self.interplanetary_travel.coast(duration)
 
-    def manual_orientation(self):
+    def manual_orientation(self, time):
         """Does a manual orientation of the spacecraft."""
         self.mission.take_picture()
 
@@ -412,19 +416,23 @@ class Spacecraft:
 
         velocity = self.trilateration.radial_velocity()
 
-        print(f'The spacecraft velocity is {velocity}')
+        print(f'The spacecraft velocity is [{velocity[0]},{velocity[1]}]')
 
-        position = self.trilateration.tri_test(distances)
+        trajection_computer = TrajectionComputer(self.rocket_mass)
+
+        position = self.trilateration.tri_test(distances, trajection_computer.planet_positions_at_t(time))
 
         print(f'Spacecraft position is {position}')
 
         self.mission.verify_manual_orientation(position, velocity, angle)
 
+        SpaceMission.save('after_launch.bin', self.mission)
 
-def rocket_engine_factory(filename, number_of_motors, temperature, steps, particles, args):
+
+def rocket_engine_factory(filename, number_of_motors, temperature, steps, particles, dt, args):
     """Cosntruct, or read from file, a rocket enigine with given number of motors."""
     if(os.path.exists(filename) is False or args.run_steps == 'true'):
-        motor = nm.nano_motor(10**-6, particles, temperature, dt)
+        motor = nano_motor(10**-6, particles, temperature, dt)
         print(f'Running engine particle simulation for {steps} steps')
         for i in range(steps):
             print(f"{i:4d}\b\b\b\b", end="", flush=True)
@@ -463,12 +471,12 @@ if __name__ == '__main__':
     particles = 9.8**5
     t = args.t       # Time in years after t=0 to launch at
     angle = args.launch_angle  # Angle along equator to launch from in radians
-    dt = 0.01
 
     # Construct the engine
-    engine = rocket_engine_factory(rocket_filename, motors, temperature, steps, particles, args)
+    engine = rocket_engine_factory(rocket_filename, motors, temperature, steps, particles, dt, args)
 
     # Construct the launch object
+    dt = 0.01
     space_craft = Spacecraft(fuel_mass, engine, dt, 33382, args.verbose)
 
     space_craft.time = t
@@ -481,7 +489,7 @@ if __name__ == '__main__':
 
     space_craft.plot_orbit(0)
 
-    SpaceMission.save('part1.bin', space_craft.mission)
+    SpaceMission.save('part5.bin', space_craft.mission)
 
 
 """

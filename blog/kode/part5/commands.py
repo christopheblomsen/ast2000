@@ -78,7 +78,7 @@ class Launch(Command):
 
     def execute(self, args):
         """Execute launch command on spacecraft."""
-        self.spacecraft.launch_process(self.t, self.angle)
+        self.spacecraft.launch_process(self.angle, self.t)
 
         return True
 

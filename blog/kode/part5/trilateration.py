@@ -91,6 +91,7 @@ class Trilateration:
                     mindiff = (diff_x, diff_y)
                     minindex = i
 
+        print(f' closest point is {vec1[:, minindex]}')
         return vec1[:, minindex]
 
     def circle(self, radii, a, b):
@@ -101,8 +102,8 @@ class Trilateration:
         b[i] is that objects y coordinate
         """
         N = len(a)
-        theta = np.linspace(0, 2*np.pi, 5000)
-        vec = np.zeros((2, N, 5000), float)
+        theta = np.linspace(0, 2*np.pi, 8000)
+        vec = np.zeros((2, N, 8000), float)
 
         for i in range(N):
             """
@@ -123,6 +124,7 @@ class Trilateration:
         """
         Finds the correct x and y coordinates
         """
+
         vec = self.circle(radii, a, b)
         if(operatingsystem.path.exists('candidates.npy')):
             return np.load('candidates.npy', allow_pickle=True)
@@ -131,9 +133,9 @@ class Trilateration:
         for i in range(N):
             for j in range(N):
                 if j != i:
-                    print(f'Comparing {i} and {j}')
+                    print(f'Comparing {i} and {j}', end='')
                     correct.append(self.comparrison(vec[:, i],
-                                                    vec[:, j], tol=0.1))
+                                                    vec[:, j], tol=0.03))
 
         return np.array(correct, dtype=object)
 
@@ -152,14 +154,14 @@ class Trilateration:
 
         return neighbours
 
-    def tri_test(self, distances):
-        """Test for t=0 at home planet."""
-        planet_pos = self.planet_pos
-
+    def tri_test(self, distances, planet_pos):
+        """Tiriangulate distances with planet_pos planet positions."""
         # Find the three clostest planets, excluding our mother planet
         closest = np.argsort(distances)[1:4]
         print(f'Shortest distance from us {closest}')
-        positions = np.concatenate((planet_pos[:, :, 0],
+        print(f'planet_pos.shape {planet_pos.shape}')
+        print(f'planet_pos {planet_pos}')
+        positions = np.concatenate((planet_pos.T,
                                     np.zeros((2, 1))), axis=1)
 
         print(np.shape(positions))
@@ -178,17 +180,18 @@ class Trilateration:
         print(f'coordinate candidates {candidates.shape} ')
         x = candidates[:, 0]
         y = candidates[:, 1]
-        neighbours = self.find_closest_neighbours(x, y, 0.01)
+        neighbours = self.find_closest_neighbours(x, y, 0.1)
         print(neighbours)
         for neighbour in neighbours:
-            if(len(neighbours[neighbour]) == 3):
+            if(len(neighbours[neighbour]) >= 3):
                 print(f'x: {x[neighbours[neighbour]]}')
                 print(f'y: {y[neighbours[neighbour]]}')
-                centroid = [x[neighbours[neighbour]].sum()/3,
-                            y[neighbours[neighbour]].sum()/3]
+                centroid = [x[neighbours[neighbour]].sum()/len(neighbours[neighbour]),
+                            y[neighbours[neighbour]].sum()/len(neighbours[neighbour])]
 
         plt.scatter(candidates[:, 0], candidates[:, 1], c='r')
-        # plt.scatter(centroid[0], centroid[1], c='g')
+        if "centroid" in locals():
+            plt.scatter(centroid[0], centroid[1], c='g')
         plt.xlabel('AU')
         plt.ylabel('AU')
         plt.legend()
