@@ -1,19 +1,12 @@
 """Egen kode."""
-# import numpy as np
-
-# import matplotlib.pyplot as plt
-# from ast2000tools.solar_system import SolarSystem
-from ast2000tools.space_mission import SpaceMission
 
 import spacecraft
-# from astrogation_computer import AstrogationComputer
-# from trajection_computer import TrajectionComputer
-from commands import Launch
+from nano_motor import nano_motor
+from commands import Launch, Boost, Coast
 
 
 class NavStation:
-    """
-    This is the Navigation controller that performs the commands to navigate.
+    """This is the Navigation controller that performs the commands to navigate.
 
     Add commands in the order they should be executed.
     """
@@ -45,8 +38,6 @@ if __name__ == '__main__':
                         help='Print debug statements')
     args = parser.parse_args()
 
-    mission = SpaceMission(33382)
-
     steps = 1000
     motors = 11.0699895**15
     max_launch_time = 1000
@@ -62,11 +53,21 @@ if __name__ == '__main__':
 
     rocket_engine = spacecraft.rocket_engine_factory(rocket_filename, motors,
                                                      temperature, steps,
-                                                     particles, args)
+                                                     particles, dt, args)
 
-    space_craft = spacecraft.Spacecraft(mission, fuel_mass, rocket_engine,
-                                        dt, args.verbose)
+    space_craft = spacecraft.Spacecraft(fuel_mass, rocket_engine,
+                                        dt, 33382, args.verbose)
 
-    nav_station.AddCommand(Launch(0, 0, space_craft, mission))
+    nav_station.AddCommand(Launch(t, angle, space_craft))
+
+    nav_station.AddCommand(Boost([-1.6712756907642885, -0.25203293684429795], space_craft))
+
+    nav_station.AddCommand(Coast(0.24469793490545463, spacecraft))
 
     nav_station.Execute()
+
+    cur_time, cur_pos, cur_vel = space_craft.interplanetary_travel.orient()
+    print(f'Position {cur_pos} and velocity {cur_vel} at {cur_time}')
+
+    dest_pos = space_craft.planet_position(6, cur_time)
+    print(f'Destination pos {dest_pos}')
