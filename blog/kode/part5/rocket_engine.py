@@ -87,3 +87,7 @@ if __name__ == "__main__":
     print(f'Fuel consumption {engine.fuel_consumption():g} kg/s')
     print(f'Fuel consumed after boost to {dv} m/s in {engine.time_needed} sec \
     is {fuel_consumed:.2f} kg')
+
+"""
+Ingen kjøreeksempel. Benyttes av spacecraft.py
+"""

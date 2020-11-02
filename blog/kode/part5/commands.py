@@ -98,3 +98,8 @@ class CorrectionalBoost(Command):
     def execute(self, args):
         """Execute command, Not implemented yet."""
         pass
+
+
+"""
+Ingen kjøreeksempler, benyttes av navstation.py
+"""

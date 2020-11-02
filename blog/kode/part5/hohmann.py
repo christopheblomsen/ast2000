@@ -228,3 +228,35 @@ if __name__ == "__main__":
     plt.show()
 
     hohmann.plot_positions(time)
+"""
+Kjøreeksempel:
+$> python hohmann.py
+Planet trajectories 8 planets loaded
+Find launch time from planet 0 to 6
+Orbital period of start planet 0 is 0.24747070147434883 years
+Orbital period of destination planet 6 is 0.8067538643056904 years
+Found launch time 91
+With tolerance [0.00511095 0.00897038 0.00699234 0.00824632]
+At time [0.02464116 0.24914954 0.38604489 0.73102117] years
+Angle is 70.99142476279717
+Planet 0 position [0.36550444 0.01480869]
+v_at_planet: a 0.5612102290410104, P 0.48857271841706096, R [0.36550444 0.01480869], R_norm 0.3658043067868395
+v is 10.379815420603816
+We need a velocity of 10.379815420603816 AU/yr to achieve the Hohmann transfer
+Planet 0 position [0.36550444 0.01480869]
+v_at_planet: a 0.5612102290410104, P 0.48857271841706096, R [0.36550444 0.01480869], R_norm 0.3658043067868395
+v is 10.379815420603816
+Planet 0 position [0.36550444 0.01480869]
+v_from_planet: a 0.35660598633414764, P 0.24747070147434883, R, [0.36550444 0.01480869] R_norm 0.3658043067868395
+v is 9.287629735612652
+Delta v to enter orbit 1.092185684991163 AU/yr to achieve the Hohmann transfer
+Delta v vector to enter orbit [-0.9991802454195715,0.040482553813770444]
+======================================
+v at perhelion 10.379815420603816 AU/yr
+Planet position is [0.36550443703081054,0.014808692534807199]
+cos theta = 0.9991802454195715
+sin theta = 0.040482553813770375
+v theta = [-0.42020143634159757, 10.371306519368773]
+Hoth position at 0.24914953763595418 is 0.36550443703081054, 0.014808692534807199
+Hoth position at 0.24914953763595418 is 0.21076574649684443, 0.7266675997348173
+"""

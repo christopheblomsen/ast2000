@@ -293,3 +293,29 @@ if __name__ == '__main__':
     # plt.scatter(position[-1,0],position[-1,1],marker='o')
 
     # plt.show()
+
+"""
+Kjøreeksempel:
+$> python trajection_computer.py
+Planet trajectories 8 planets loaded
+Planet 0 position at t=0.24914953763595418 [0.36550443703081054            ,0.014808692534807199]
+Parameters
+Initial time 0.24914953763595418
+Initial position [0.36550444 0.01480869]
+Initial velociy [-0.42020144 10.37130652]
+2000 = 0.24428635920853048/0.00012214317960426523
+trajection_computer.py:206: RuntimeWarning: divide by zero encountered in double_scalars
+  ap[i] = -c.G_sol*((self.system.masses[i])/np.linalg.norm(rp[i])**3)*rp[i]
+trajection_computer.py:206: RuntimeWarning: invalid value encountered in multiply
+  ap[i] = -c.G_sol*((self.system.masses[i])/np.linalg.norm(rp[i])**3)*rp[i]
+RESULTS with 2000 steps during 0.24428635920853048 years
+     Initial time 0.24914953763595418 year
+Intermediate time 0.4933137536648835 year
+ Initial position [0.36550444 0.01480869] AU
+   Final position [-0.715850137801107,-0.0858780401151037] AU
+ Initial velocity [-0.42020143634159757 10.371306519368773] AU/yr
+   Final velocity [0.8251876769377469 -5.164750441962809] AU/yr
+animate_orbits
+Animation complete
+
+"""
