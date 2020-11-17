@@ -6,13 +6,14 @@ from ast2000tools.space_mission import SpaceMission
 from ast2000tools.shortcuts import SpaceMissionShortcuts
 
 class landing:
-    def __init__(self, seed=3382,
+    def __init__(self, seed=33382,
                 A_para=1, A_rocket=1,
                 C_para=1, C_rocket=1,
                 codes=[92725]):
         """
         Initilize
         """
+        position_after_launch = np.load('part1.bin', allow_pickle=True)
         self.system = SolarSystem(seed)
         self.mission = SpaceMission(seed)
         self.C_rocket = C_rocket
@@ -21,6 +22,7 @@ class landing:
         self.A_para = A_para
         self.drag_coeff_full()
         self.shortcut = SpaceMissionShortcuts(self.mission, codes)
+        self.mission.verify_launch_result(position_after_launch)
 
     def cheat_stable_orbit(self):
         self.shortcut.place_spacecraft_in_stable_orbit(0, 30000, 0, 4)
