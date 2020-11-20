@@ -69,9 +69,9 @@ class SpectralAnalysis:
         T is the temperature of the gas in Kelvin
         m is the molecular weight of the gas
         """
-        stdd = np.sqrt((c.k_B*T)/m)*1e-5
-        print(f'Standard deviation is {c.k_B}*{T}/{m}={stdd}')
-        return 1/np.sqrt(2*np.pi*stdd)*np.exp(-0.5*(lam-lam0)**2/stdd**2)
+        stdd = np.sqrt((2*c.k_B*T)/m)
+        # print(f'Standard deviation is {c.k_B}*{T}/{m}={stdd}')
+        return 1/(np.sqrt(2*np.pi)*stdd)*np.exp(-0.5*(lam-lam0)**2/stdd**2)
 
     def chi_square(self, Fobs, Fmod, deviation):
         """Calculate the Chi square.
@@ -119,7 +119,7 @@ class SpectralAnalysis:
                     chi2min = chi2sum
                     lam0min = lam0
                     Tmin = T
-                    print(f'Current chi2min is {chi2min}')
+                    # print(f'Current chi2min is {chi2min}')
         return lam0min, Tmin
 
 
@@ -128,13 +128,25 @@ if __name__ == '__main__':
     #lamb = np.linspace(631, 633, 1000)
     #mod = analysis.Fmod(lamb, 632, 300, analysis.m_O2)
     #plt.plot(lamb, 1-mod)
-    lam, temp = analysis.best_fit(632, analysis.m_O2)
-    print(f'Found best fit lambda 0 = {lam} and T = {temp}')
-    analysis.plot_spectrum(632)
-    analysis.plot_bestfit(632, lam, temp)
 
-    # analysis.plot_spectrum(690)
-    # analysis.plot_spectrum(720)
-    # analysis.plot_deviation()
-    plt.legend()
-    plt.show()
+    gasses = {
+        "02": [analysis.m_O2, 632, 690, 760],
+        "H2O": [analysis.m_H2O, 720, 820, 940],
+        "CO2": [analysis.m_CO2, 1400, 1600],
+        "CH4": [analysis.m_CH4, 1660, 2200],
+        "CO": [analysis.m_CO, 2340],
+        "N2O": [analysis.m_N20, 2870]
+    }
+
+    for gas, data in gasses.items():
+        for wl in range(1, len(data)):
+            lam, temp = analysis.best_fit(data[wl], data[0])
+            print(f'Found best fit for {gas} lambda 0 = {lam} and T = {temp}')
+            analysis.plot_spectrum(data[wl])
+            analysis.plot_bestfit(data[wl], lam, temp)
+
+            # analysis.plot_spectrum(690)
+            # analysis.plot_spectrum(720)
+            # analysis.plot_deviation()
+            plt.legend()
+            plt.show()
