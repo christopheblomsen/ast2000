@@ -1,5 +1,5 @@
 import numpy as np
-
+from ast2000tools.star_population import StarPopulation
 import matplotlib.pyplot as plt
 
 
@@ -44,4 +44,4 @@ ax.set_yscale('log')
 ax.set_ylim(1e-4, 1e6)
 
 
-plt.show('HR_diagram.png')
+plt.savefig('HR_diagram.png')
