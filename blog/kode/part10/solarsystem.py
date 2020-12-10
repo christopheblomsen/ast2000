@@ -13,3 +13,5 @@ L = 4*c.pi*R**2*c.sigma*T**4
 print('Luminosity is {:g} Watts' .format(L))
 
 print(f'Spectral height {L/c.L_sun}')
+
+print(f'L is {M**3.5:g} Watts')
