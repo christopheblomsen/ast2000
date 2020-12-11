@@ -18,12 +18,13 @@
 **** TODO Write
 ** TODO Excersice 4
 *** TODO Problem
-*** TODO Write
+*** TODO Write Christophe
 ***** TODO Wordlines 
 ***** TODO Gifs
 ** TODO Excersice 5
 *** TODO Problem
-*** TODO Write
+*** TODO Write Christophe
+***** TODO Gifs
 ** TODO Excersice 6
 *** TODO Problem
 *** TODO Write
@@ -64,7 +65,7 @@
 * TODO Part 10
 ** TODO  Part 1
 *** TODO A
-**** TODO Write
+**** TODO Write Christophe
 **** TODO Problem
 *** TODO B
 **** TODO Problem
