@@ -12,13 +12,15 @@
 **** TODO Write
 *** TODO Part 4
 **** TODO Problem
-*** TODO Write
+**** TODO Write
 *** TODO Part 5
 **** TODO Problem
 **** TODO Write
 ** TODO Excersice 4
 *** TODO Problem
 *** TODO Write
+***** TODO Wordlines 
+***** TODO Gifs
 ** TODO Excersice 5
 *** TODO Problem
 *** TODO Write
