@@ -1,20 +1,21 @@
 * TODO Part 8
+** DONE Excersice 1
 ** TODO Excersice 2
 ** TODO Excersice 3
-*** TODO Part 1
-**** TODO Problem
-**** TODO Write
-*** TODO Part 2
-**** TODO Problem
-**** TODO Write
-*** TODO Part 3
-**** TODO Problem
-**** TODO Write
+*** DONE Part 1
+**** DONE Problem
+**** DONE Write
+*** DONE Part 2
+**** DONE Problem
+**** DONE Write
+*** DONE Part 3
+**** DONE Problem
+**** DONE Write
 *** TODO Part 4
-**** TODO Problem
+**** DONE Problem
 **** TODO Write
 *** TODO Part 5
-**** TODO Problem
+**** DONE Problem
 **** TODO Write
 ** TODO Excersice 4
 *** TODO Problem
@@ -70,7 +71,7 @@
 ** TODO  Part 1
 *** TODO A
 **** TODO Write Christophe
-**** TODO Problem
+**** DONE Problem
 *** TODO B
 **** TODO Problem
 **** TODO Write
