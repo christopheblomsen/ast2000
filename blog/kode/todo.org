@@ -38,7 +38,7 @@
 **** DONE 5
 **** TODO 6
 *** TODO Write
-**** TODO 5
+**** DONE 5
 **** TODO 6
 ** TODO Excersice 2
 *** TODO Problem
