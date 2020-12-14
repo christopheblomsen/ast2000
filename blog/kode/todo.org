@@ -1,0 +1,90 @@
+* TODO Part 8
+** TODO Excersice 2
+** TODO Excersice 3
+*** TODO Part 1
+**** TODO Problem
+**** TODO Write
+*** TODO Part 2
+**** TODO Problem
+**** TODO Write
+*** TODO Part 3
+**** TODO Problem
+**** TODO Write
+*** TODO Part 4
+**** TODO Problem
+**** TODO Write
+*** TODO Part 5
+**** TODO Problem
+**** TODO Write
+** TODO Excersice 4
+*** TODO Problem
+*** TODO Write Christophe
+***** TODO Wordlines 
+***** TODO Gifs
+** TODO Excersice 5
+*** TODO Problem
+*** TODO Write Christophe
+***** TODO Gifs
+** TODO Excersice 6
+*** TODO Problem
+*** TODO Write
+** TODO Excersice 7
+*** TODO Problem
+*** TODO Write
+
+* TODO Part 9
+** TODO Excersice 1
+*** TODO Problem
+**** DONE 5
+**** TODO 6
+*** TODO Write
+**** DONE 5
+**** TODO 6
+** TODO Excersice 2
+*** TODO Problem
+*** TODO Write
+** TODO Excersice 3
+*** TODO Part 1
+**** TODO Problem
+**** TODO Write
+*** TODO Part 2
+**** TODO Problem
+**** TODO Write
+** TODO Excersice 4
+*** TODO Problem
+*** TODO Write
+** TODO Excersice 5
+*** TODO Problem
+*** TODO Write
+** TODO Excersice 6
+*** TODO Problem
+*** TODO Write
+** TODO Excersice 7
+*** TODO Problem
+*** TODO Write
+** TODO Excersice 8
+*** TODO Problem
+*** TODO Write
+
+* TODO Part 10
+** TODO  Part 1
+*** TODO A
+**** TODO Write Christophe
+**** TODO Problem
+*** TODO B
+**** TODO Problem
+**** TODO Write
+** TODO Part 2
+*** TODO A
+**** TODO Write
+**** TODO Problem
+*** TODO B
+**** TODO Problem
+**** TODO Write
+** TODO Part 3
+*** TODO A
+**** TODO Write
+**** TODO Problem
+*** TODO B
+**** TODO Problem
+**** TODO Write
