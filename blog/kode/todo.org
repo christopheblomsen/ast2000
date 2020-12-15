@@ -13,7 +13,7 @@
 **** DONE Write
 *** TODO Part 4
 **** DONE Problem
-**** TODO Write
+**** DONE Write
 *** TODO Part 5
 **** DONE Problem
 **** TODO Write
@@ -52,7 +52,7 @@
 **** TODO Problem
 **** TODO Write
 ** TODO Excersice 4
-*** TODO Problem
+*** DONE Problem
 *** TODO Write
 ** TODO Excersice 5
 *** TODO Problem
